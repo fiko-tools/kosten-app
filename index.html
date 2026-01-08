@@ -138,6 +138,9 @@
 
   <label>Produktname</label>
   <input type="text" id="produkt">
+  <label>Produktbild</label>
+<input type="file" id="bild" accept="image/*" onchange="bildLaden(event)">
+<img id="preview" class="produktbild">    
 
   <label>Produktbild</label>
   <input type="file" id="bild" accept="image/*">
@@ -241,3 +244,4 @@
 <script src="app.js"></script>
 </body>
 </html>
+
