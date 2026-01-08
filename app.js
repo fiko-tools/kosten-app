@@ -202,29 +202,76 @@ function berechneSet(stueck, verkauf) {
     setGewicht: setGewicht
   };
 }
-function speichern() {
-  let produkt = {
-    name: document.getElementById("produkt").value,
-    datum: new Date().toLocaleString(),
-    ddp: document.getElementById("ddp").value,
-    set: document.getElementById("set").value,
-    verkauf: document.getElementById("verkauf").value,
-    ergebnis: document.getElementById("ergebnis").innerHTML
+// ================================
+// 🔐 STABILE SPEICHERUNG (IndexedDB)
+// ================================
+
+const dbName = "KostenAppDB";
+const storeName = "produkte";
+let gespeichertesBild = "";
+
+// Datenbank öffnen
+function openDB(callback) {
+  const request = indexedDB.open(dbName, 1);
+
+  request.onupgradeneeded = function (e) {
+    const db = e.target.result;
+    if (!db.objectStoreNames.contains(storeName)) {
+      db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
+    }
   };
 
-  let liste = JSON.parse(localStorage.getItem("produkte")) || [];
-  liste.push(produkt);
-  localStorage.setItem("produkte", JSON.stringify(liste));
-
-  alert("Produkt gespeichert ✅");
+  request.onsuccess = function (e) {
+    callback(e.target.result);
+  };
 }
-document.getElementById("bild").addEventListener("change", function() {
-  let file = this.files[0];
-  if (!file) return;
 
-  let reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById("preview").src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+// 💾 SPEICHERN
+function speichern() {
+  openDB(db => {
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+
+    const produkt = {
+      name: document.getElementById("produkt").value,
+      datum: new Date().toLocaleString(),
+      bild: gespeichertesBild,
+      felder: {
+        ddp: document.getElementById("ddp").value,
+        set: document.getElementById("set").value,
+        verkauf: document.getElementById("verkauf").value
+      },
+      ergebnis: document.getElementById("ergebnis").innerHTML
+    };
+
+    store.add(produkt);
+    alert("Produkt sicher gespeichert ✅");
+  });
+}
+
+// 🔄 LETZTES PRODUKT BEIM START LADEN
+window.addEventListener("load", function () {
+  openDB(db => {
+    const tx = db.transaction(storeName, "readonly");
+    const store = tx.objectStore(storeName);
+    const request = store.openCursor(null, "prev");
+
+    request.onsuccess = function (e) {
+      const cursor = e.target.result;
+      if (!cursor) return;
+
+      const p = cursor.value;
+
+      document.getElementById("produkt").value = p.name || "";
+      document.getElementById("ddp").value = p.felder.ddp || "";
+      document.getElementById("set").value = p.felder.set || "";
+      document.getElementById("verkauf").value = p.felder.verkauf || "";
+      document.getElementById("ergebnis").innerHTML = p.ergebnis || "";
+
+      if (p.bild) {
+        gespeichertesBild = p.bild;
+        document.getElementById("preview").src = p.bild;
+      }
+    };
+  });
 });
