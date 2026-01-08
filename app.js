@@ -209,6 +209,25 @@ function berechneSet(stueck, verkauf) {
 const dbName = "KostenAppDB";
 const storeName = "produkte";
 let gespeichertesBild = "";
+// 📸 Produktbild auswählen & merken
+document.addEventListener("DOMContentLoaded", function () {
+  const bildInput = document.getElementById("bild");
+  const preview = document.getElementById("preview");
+
+  if (!bildInput) return;
+
+  bildInput.addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      gespeichertesBild = e.target.result;
+      preview.src = gespeichertesBild;
+    };
+    reader.readAsDataURL(file);
+  });
+});
 
 // Datenbank öffnen
 function openDB(callback) {
@@ -275,3 +294,4 @@ window.addEventListener("load", function () {
     };
   });
 });
+
