@@ -75,6 +75,12 @@ function berechnen() {
     <p><strong>Gewinn: ${gewinn.toFixed(2)} €</strong></p>
     <p class="${klasse}">Marge: ${marge.toFixed(2)} %</p>
   `;
+  // ===== Druckdaten setzen =====
+document.getElementById("printProdukt").innerText =
+  "Produkt: " + document.getElementById("produkt").value;
+
+document.getElementById("printDatum").innerText =
+  "Datum: " + new Date().toLocaleDateString();
 }
 function berechneSet(stueck, verkauf) {
 
@@ -294,4 +300,5 @@ window.addEventListener("load", function () {
     };
   });
 });
+
 
