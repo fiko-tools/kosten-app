@@ -117,6 +117,22 @@
       border: 1px solid #ccc;
     }
   }
+    /* ===== Druck Layout ===== */
+#printHeader {
+  display: none;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+@media print {
+  #printHeader {
+    display: block;
+  }
+
+  button {
+    display: none;
+  }
+}
 </style>
 
 
@@ -130,6 +146,11 @@
 </header>
 
 <main>
+  <!-- Druck-Kopfzeile (nur für PDF / Drucken) -->
+<div id="printHeader">
+  <h1 id="printProdukt"></h1>
+  <p id="printDatum"></p>
+</div>
 
   <!-- PRODUKT -->
   <section>
@@ -244,4 +265,5 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
