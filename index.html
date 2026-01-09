@@ -7,16 +7,9 @@
 
 <style>
 :root{
-  --bg:#f6f8fc;
-  --card:#ffffff;
-  --primary:#2563eb;
-  --primary-dark:#1e40af;
-  --text:#0f172a;
-  --muted:#64748b;
-  --border:#e5e7eb;
-  --bad:#dc2626;
-  --mid:#d97706;
-  --good:#16a34a;
+  --bg:#f6f8fc; --card:#ffffff; --primary:#2563eb;
+  --primary-dark:#1e40af; --text:#0f172a; --muted:#64748b;
+  --border:#e5e7eb; --bad:#dc2626; --mid:#d97706; --good:#16a34a;
 }
 
 *{box-sizing:border-box}
@@ -35,13 +28,9 @@ header{
   text-align:center;
 }
 
-main{
-  max-width:1100px;
-  margin:auto;
-  padding:16px;
-}
+main{max-width:1100px;margin:auto;padding:16px}
 
-/* ---------- KLAPPBARE SECTIONS ---------- */
+/* ---------- SECTIONS ---------- */
 .section{
   background:var(--card);
   border-radius:14px;
@@ -66,6 +55,17 @@ main{
   border-top:1px solid var(--border);
 }
 
+/* ---------- LAYOUT PRODUKT ---------- */
+.product-layout{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:16px;
+}
+
+@media(max-width:768px){
+  .product-layout{grid-template-columns:1fr}
+}
+
 /* ---------- FORM ---------- */
 .grid{
   display:grid;
@@ -83,12 +83,11 @@ input{
   border:1px solid var(--border);
 }
 
-/* ---------- BUTTONS ---------- */
 button{
   border:none;
   border-radius:12px;
-  padding:12px;
-  font-size:15px;
+  padding:10px;
+  font-size:14px;
   font-weight:600;
   cursor:pointer;
   background:var(--primary);
@@ -97,6 +96,7 @@ button{
 
 button.secondary{background:#64748b}
 button.print{background:#16a34a}
+button.danger{background:#dc2626}
 
 .actions{
   display:grid;
@@ -105,13 +105,35 @@ button.print{background:#16a34a}
   margin-bottom:12px;
 }
 
-/* ---------- BILD (nur Eingabe) ---------- */
+/* ---------- BILD ---------- */
 #preview{
   max-width:120px;
   max-height:150px;
   border-radius:10px;
   border:1px solid var(--border);
   margin-top:8px;
+}
+
+/* ---------- PRODUKTLISTE ---------- */
+.product-list{
+  font-size:13px;
+}
+
+.product-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:6px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.product-item span{
+  font-weight:600;
+}
+
+.product-item button{
+  padding:6px 8px;
+  font-size:12px;
 }
 
 /* ---------- TABELLE ---------- */
@@ -129,7 +151,6 @@ th,td{
 }
 
 th{color:var(--muted)}
-
 .bad{color:var(--bad);font-weight:700}
 .mid{color:var(--mid);font-weight:700}
 .good{color:var(--good);font-weight:700}
@@ -139,9 +160,7 @@ th{color:var(--muted)}
 
 @media print{
   @page{size:A4;margin:10mm}
-
   body{background:#fff;font-size:12px}
-
   .section:not(#printSection){display:none}
   button,input[type=file]{display:none!important}
 
@@ -175,13 +194,24 @@ th{color:var(--muted)}
   <div class="section-header" onclick="toggle(this)">
     <h2>Produkt</h2><span class="toggle">▼</span>
   </div>
-  <div class="section-content">
-    <label>Produktname</label>
-    <input id="produktname">
+  <div class="section-content product-layout">
 
-    <label>Produktbild</label>
-    <input type="file" accept="image/*" onchange="bildLaden(event)">
-    <img id="preview">
+    <!-- LINKS -->
+    <div>
+      <label>Produktname</label>
+      <input id="produktname">
+
+      <label>Produktbild</label>
+      <input type="file" accept="image/*" onchange="bildLaden(event)">
+      <img id="preview">
+    </div>
+
+    <!-- RECHTS -->
+    <div>
+      <strong>Letzte Produkte</strong>
+      <div class="product-list" id="productList"></div>
+    </div>
+
   </div>
 </div>
 
@@ -228,14 +258,13 @@ th{color:var(--muted)}
   </div>
 </div>
 
-<!-- ERGEBNIS / DRUCK -->
+<!-- ERGEBNIS -->
 <div class="section" id="printSection">
   <div class="section-header">
     <h2>Ergebnis & Setvergleich</h2>
   </div>
   <div class="section-content">
 
-    <!-- NUR FÜR DRUCK -->
     <div id="printHeader">
       <img id="printImage">
       <strong id="printName"></strong>
@@ -267,7 +296,7 @@ function bildLaden(e){
   r.onload=()=>{
     preview.src=r.result;
     printImage.src=r.result;
-    localStorage.setItem("bild",r.result);
+    localStorage.setItem("bild_temp",r.result);
   };
   r.readAsDataURL(e.target.files[0]);
 }
@@ -329,8 +358,6 @@ function berechnen(){
   });
 
   ergebnis.innerHTML=`
-    <p><strong>Abrechnungsgewicht:</strong> ${abrechnung.toFixed(2)} kg</p>
-    <p><strong>DDP pro Stück:</strong> ${ddpMwst.toFixed(2)} €</p>
     <table>
       <tr>
         <th>Set</th><th>Preis</th><th>Kosten</th>
@@ -341,23 +368,65 @@ function berechnen(){
 }
 
 function speichern(){
-  const d={};
-  document.querySelectorAll("input").forEach(i=>d[i.id]=i.value);
-  localStorage.setItem("daten",JSON.stringify(d));
-  alert("Gespeichert");
+  const prod={
+    id:Date.now(),
+    name:produktname.value||"Ohne Namen",
+    bild:localStorage.getItem("bild_temp"),
+    daten:{}
+  };
+
+  document.querySelectorAll("input").forEach(i=>prod.daten[i.id]=i.value);
+
+  let liste=JSON.parse(localStorage.getItem("produkte")||"[]");
+  liste.unshift(prod);
+  liste=liste.slice(0,10);
+  localStorage.setItem("produkte",JSON.stringify(liste));
+
+  ladeProduktListe();
+  alert("Produkt gespeichert");
+}
+
+function ladeProduktListe(){
+  const list=JSON.parse(localStorage.getItem("produkte")||"[]");
+  productList.innerHTML="";
+  list.forEach(p=>{
+    const div=document.createElement("div");
+    div.className="product-item";
+    div.innerHTML=`
+      <span>${p.name}</span>
+      <div>
+        <button onclick='laden(${p.id})'>Laden</button>
+        <button class="danger" onclick='loeschen(${p.id})'>✕</button>
+      </div>`;
+    productList.appendChild(div);
+  });
+}
+
+function laden(id){
+  const list=JSON.parse(localStorage.getItem("produkte")||"[]");
+  const p=list.find(x=>x.id===id);
+  if(!p) return;
+
+  Object.keys(p.daten).forEach(k=>{
+    if(document.getElementById(k)) document.getElementById(k).value=p.daten[k];
+  });
+
+  if(p.bild){
+    preview.src=p.bild;
+    printImage.src=p.bild;
+    localStorage.setItem("bild_temp",p.bild);
+  }
+}
+
+function loeschen(id){
+  let list=JSON.parse(localStorage.getItem("produkte")||"[]");
+  list=list.filter(p=>p.id!==id);
+  localStorage.setItem("produkte",JSON.stringify(list));
+  ladeProduktListe();
 }
 
 window.onload=()=>{
-  if(localStorage.getItem("bild")){
-    preview.src=localStorage.getItem("bild");
-    printImage.src=localStorage.getItem("bild");
-  }
-  if(localStorage.getItem("daten")){
-    const d=JSON.parse(localStorage.getItem("daten"));
-    Object.keys(d).forEach(k=>{
-      if(document.getElementById(k)) document.getElementById(k).value=d[k];
-    });
-  }
+  ladeProduktListe();
 };
 </script>
 
