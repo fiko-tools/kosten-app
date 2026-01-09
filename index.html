@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== BASIS ===== */
+/* ================= BASIS ================= */
 body {
   font-family: Arial, sans-serif;
   background: #f3f4f6;
@@ -69,7 +69,7 @@ button:hover {
   background: #1e40af;
 }
 
-/* ===== PRODUKTBILD (SCREEN) ===== */
+/* Produktbild */
 #preview {
   max-width: 120px;
   max-height: 160px;
@@ -78,19 +78,12 @@ button:hover {
   border: 1px solid #ccc;
 }
 
-/* ===== ERGEBNIS ===== */
-#ergebnis {
-  margin-top: 12px;
-}
-
+/* Ergebnis */
 .gewinn { color: #16a34a; font-weight: bold; }
 .verlust { color: #dc2626; font-weight: bold; }
 
-/* ================================================= */
-/* =================== DRUCK ======================= */
-/* ================================================= */
+/* ================= DRUCK ================= */
 @media print {
-
   @page {
     size: A4 portrait;
     margin: 8mm;
@@ -116,24 +109,17 @@ button:hover {
     margin-bottom: 6px;
   }
 
-  h2 {
-    font-size: 13px;
-    margin: 4px 0;
-  }
-
-  /* Produktbild im PDF */
   #preview {
     max-width: 80px;
     max-height: 100px;
     margin: 0 auto 4px auto;
   }
 
-  /* Alles außer Ergebnis ausblenden */
+  /* Nur Ergebnis drucken */
   section:not(#ergebnisSection) {
     display: none;
   }
 
-  /* Buttons & Upload ausblenden */
   button,
   input[type="file"] {
     display: none !important;
@@ -155,42 +141,64 @@ button:hover {
   <h2>1️⃣ Produkt</h2>
 
   <label>Produktname</label>
-  <input type="text">
+  <input id="produktname" type="text">
 
   <label>Produktbild</label>
   <input type="file" accept="image/*" onchange="loadImage(event)">
   <img id="preview">
 
+  <label>Stück pro Set</label>
+  <input id="menge" type="number" value="1">
 </section>
 
 <section>
   <h2>2️⃣ Einkauf & DDP</h2>
 
   <label>EK pro Stück (€)</label>
-  <input type="number">
+  <input id="ek" type="number" step="0.01">
 
   <label>DDP pro Stück (€)</label>
-  <input type="number">
-
+  <input id="ddp" type="number" step="0.01">
 </section>
 
 <section>
-  <h2>3️⃣ Verkauf</h2>
+  <h2>3️⃣ Amazon Kosten</h2>
+
+  <label>Amazon Verkaufsgebühr (%)</label>
+  <input id="amazonProzent" type="number" value="15">
+
+  <label>Amazon Fixgebühr (€)</label>
+  <input id="amazonFix" type="number" value="0.99">
+
+  <label>Werbung PPC (€)</label>
+  <input id="ppc" type="number" value="0">
+</section>
+
+<section>
+  <h2>4️⃣ Versand & Verpackung</h2>
+
+  <label>Versandkosten pro Set (€)</label>
+  <input id="versand" type="number">
+
+  <label>Verpackungskosten pro Set (€)</label>
+  <input id="verpackung" type="number">
+</section>
+
+<section>
+  <h2>5️⃣ Verkauf</h2>
 
   <label>Verkaufspreis (€)</label>
-  <input type="number">
+  <input id="verkauf" type="number" step="0.01">
 </section>
 
 <section id="ergebnisSection">
   <h2>✅ Ergebnis</h2>
 
+  <button onclick="berechnen()">Berechnen</button>
+  <button onclick="speichern()">Produkt speichern</button>
   <button onclick="window.print()">Drucken / PDF</button>
 
-  <div id="ergebnis">
-    <p>Gesamtkosten: 42,74 €</p>
-    <p class="gewinn">Gewinn: 3,41 €</p>
-    <p class="verlust">Marge: -8,06 %</p>
-  </div>
+  <div id="ergebnis"></div>
 </section>
 
 </main>
@@ -200,10 +208,65 @@ function loadImage(e) {
   const img = document.getElementById("preview");
   img.src = URL.createObjectURL(e.target.files[0]);
 }
+
+function berechnen() {
+  const menge = +mengeInput().value;
+  const ek = +ekInput().value;
+  const ddp = +ddpInput().value;
+  const verkauf = +verkaufInput().value;
+  const amazonP = +amazonProzentInput().value / 100;
+  const amazonFix = +amazonFixInput().value;
+  const ppc = +ppcInput().value;
+  const versand = +versandInput().value;
+  const verpackung = +verpackungInput().value;
+
+  const warenkosten = (ek + ddp) * menge;
+  const amazonGebuehr = verkauf * amazonP + amazonFix;
+  const gesamt = warenkosten + amazonGebuehr + ppc + versand + verpackung;
+  const gewinn = verkauf - gesamt;
+  const marge = (gewinn / verkauf) * 100;
+
+  ergebnis.innerHTML = `
+    <p>Warenkosten: ${warenkosten.toFixed(2)} €</p>
+    <p>Amazon Gebühren: ${amazonGebuehr.toFixed(2)} €</p>
+    <p>PPC: ${ppc.toFixed(2)} €</p>
+    <p>Versand: ${versand.toFixed(2)} €</p>
+    <p>Verpackung: ${verpackung.toFixed(2)} €</p>
+    <hr>
+    <p><strong>Gesamtkosten: ${gesamt.toFixed(2)} €</strong></p>
+    <p class="${gewinn >= 0 ? 'gewinn' : 'verlust'}">
+      Gewinn: ${gewinn.toFixed(2)} € (${marge.toFixed(2)} %)
+    </p>
+  `;
+}
+
+function speichern() {
+  const data = {
+    produktname: produktname.value,
+    menge: menge.value,
+    ek: ek.value,
+    ddp: ddp.value,
+    verkauf: verkauf.value
+  };
+  localStorage.setItem("produkt", JSON.stringify(data));
+  alert("Produkt gespeichert");
+}
+
+/* Shortcuts */
+const mengeInput = () => document.getElementById("menge");
+const ekInput = () => document.getElementById("ek");
+const ddpInput = () => document.getElementById("ddp");
+const verkaufInput = () => document.getElementById("verkauf");
+const amazonProzentInput = () => document.getElementById("amazonProzent");
+const amazonFixInput = () => document.getElementById("amazonFix");
+const ppcInput = () => document.getElementById("ppc");
+const versandInput = () => document.getElementById("versand");
+const verpackungInput = () => document.getElementById("verpackung");
 </script>
 
 </body>
 </html>
+
 
 
 
