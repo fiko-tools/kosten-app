@@ -55,13 +55,12 @@ main{max-width:1100px;margin:auto;padding:16px}
   border-top:1px solid var(--border);
 }
 
-/* ---------- LAYOUT PRODUKT ---------- */
+/* ---------- PRODUKT LAYOUT ---------- */
 .product-layout{
   display:grid;
   grid-template-columns:2fr 1fr;
   gap:16px;
 }
-
 @media(max-width:768px){
   .product-layout{grid-template-columns:1fr}
 }
@@ -83,6 +82,7 @@ input{
   border:1px solid var(--border);
 }
 
+/* ---------- BUTTONS ---------- */
 button{
   border:none;
   border-radius:12px;
@@ -115,10 +115,7 @@ button.danger{background:#dc2626}
 }
 
 /* ---------- PRODUKTLISTE ---------- */
-.product-list{
-  font-size:13px;
-}
-
+.product-list{font-size:13px}
 .product-item{
   display:flex;
   justify-content:space-between;
@@ -126,34 +123,35 @@ button.danger{background:#dc2626}
   padding:6px 0;
   border-bottom:1px solid var(--border);
 }
-
-.product-item span{
-  font-weight:600;
-}
-
-.product-item button{
-  padding:6px 8px;
-  font-size:12px;
-}
+.product-item span{font-weight:600}
+.product-item button{padding:6px 8px;font-size:12px}
 
 /* ---------- TABELLE ---------- */
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:14px;
+  margin-top:12px;
   font-size:14px;
 }
-
 th,td{
   padding:8px;
   border-bottom:1px solid var(--border);
   text-align:center;
 }
-
 th{color:var(--muted)}
 .bad{color:var(--bad);font-weight:700}
 .mid{color:var(--mid);font-weight:700}
 .good{color:var(--good);font-weight:700}
+
+/* ---------- BREAK EVEN ---------- */
+.break-box{
+  margin-top:10px;
+  padding:8px;
+  border-radius:8px;
+  font-size:13px;
+  background:#f8fafc;
+  border:1px dashed var(--border);
+}
 
 /* ---------- DRUCK ---------- */
 #printHeader{display:none}
@@ -170,7 +168,6 @@ th{color:var(--muted)}
     gap:10px;
     margin-bottom:10px;
   }
-
   #printHeader img{
     max-width:60px;
     max-height:80px;
@@ -184,7 +181,7 @@ th{color:var(--muted)}
 
 <header>
   <h1>Amazon Kostenkalkulation</h1>
-  <p>Kleinunternehmer · Setpreise manuell · Break-even</p>
+  <p>Kleinunternehmer · Sets · Break-even</p>
 </header>
 
 <main>
@@ -196,7 +193,6 @@ th{color:var(--muted)}
   </div>
   <div class="section-content product-layout">
 
-    <!-- LINKS -->
     <div>
       <label>Produktname</label>
       <input id="produktname">
@@ -206,7 +202,6 @@ th{color:var(--muted)}
       <img id="preview">
     </div>
 
-    <!-- RECHTS -->
     <div>
       <strong>Letzte Produkte</strong>
       <div class="product-list" id="productList"></div>
@@ -333,7 +328,7 @@ function berechnen(){
     {anz:3,preis:+preis3.value||0}
   ];
 
-  let rows="";
+  let rows="", hints="";
 
   sets.forEach(s=>{
     if(!s.preis) return;
@@ -345,16 +340,23 @@ function berechnen(){
     const gewinn=umsatz-gesamt;
     const marge=umsatz?(gewinn/umsatz)*100:0;
     const breakEven=fixKosten/(1-amazPrc-retourP);
+    const ok=umsatz>=breakEven;
 
     rows+=`
       <tr>
-        <td>${s.anz}er Set</td>
+        <td>${s.anz}er</td>
         <td>${umsatz.toFixed(2)} €</td>
         <td>${gesamt.toFixed(2)} €</td>
         <td>${gewinn.toFixed(2)} €</td>
         <td class="${ampel(marge)}">${marge.toFixed(2)} %</td>
         <td>${breakEven.toFixed(2)} €</td>
       </tr>`;
+
+    hints+=`
+      <div class="break-box ${ok?"good":"bad"}">
+        ${s.anz}er Set: Break-even bei <strong>${breakEven.toFixed(2)} €</strong>
+        – ${ok?"profitabel":"Verlust unter diesem Preis"}
+      </div>`;
   });
 
   ergebnis.innerHTML=`
@@ -364,7 +366,8 @@ function berechnen(){
         <th>Gewinn</th><th>Marge</th><th>Break-even</th>
       </tr>
       ${rows}
-    </table>`;
+    </table>
+    ${hints}`;
 }
 
 function speichern(){
@@ -377,10 +380,10 @@ function speichern(){
 
   document.querySelectorAll("input").forEach(i=>prod.daten[i.id]=i.value);
 
-  let liste=JSON.parse(localStorage.getItem("produkte")||"[]");
-  liste.unshift(prod);
-  liste=liste.slice(0,10);
-  localStorage.setItem("produkte",JSON.stringify(liste));
+  let list=JSON.parse(localStorage.getItem("produkte")||"[]");
+  list.unshift(prod);
+  list=list.slice(0,10);
+  localStorage.setItem("produkte",JSON.stringify(list));
 
   ladeProduktListe();
   alert("Produkt gespeichert");
@@ -395,8 +398,8 @@ function ladeProduktListe(){
     div.innerHTML=`
       <span>${p.name}</span>
       <div>
-        <button onclick='laden(${p.id})'>Laden</button>
-        <button class="danger" onclick='loeschen(${p.id})'>✕</button>
+        <button onclick="laden(${p.id})">Laden</button>
+        <button class="danger" onclick="loeschen(${p.id})">✕</button>
       </div>`;
     productList.appendChild(div);
   });
@@ -425,9 +428,7 @@ function loeschen(id){
   ladeProduktListe();
 }
 
-window.onload=()=>{
-  ladeProduktListe();
-};
+window.onload=()=>ladeProduktListe();
 </script>
 
 </body>
