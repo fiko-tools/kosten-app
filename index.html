@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -8,146 +7,42 @@
 
 <style>
 :root{
-  --bg:#f6f8fc;
-  --card:#ffffff;
-  --primary:#2563eb;
-  --primary-dark:#1e40af;
-  --text:#0f172a;
-  --muted:#64748b;
-  --border:#e5e7eb;
-  --bad:#dc2626;
-  --mid:#d97706;
-  --good:#16a34a;
+  --bg:#f6f8fc; --card:#fff; --primary:#2563eb; --text:#0f172a;
+  --muted:#64748b; --border:#e5e7eb;
+  --bad:#dc2626; --mid:#d97706; --good:#16a34a;
 }
-
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-
-header{
-  background:linear-gradient(135deg,#1e3a8a,#2563eb);
-  color:#fff;
-  padding:22px 16px;
-  text-align:center;
-}
-
+body{margin:0;font-family:system-ui,Arial;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:22px;text-align:center}
 main{max-width:1100px;margin:auto;padding:16px}
 
-/* ---------- SECTION ---------- */
-.section{
-  background:var(--card);
-  border-radius:14px;
-  margin-bottom:16px;
-  box-shadow:0 10px 25px rgba(0,0,0,.06);
-  overflow:hidden;
-}
+.section{background:var(--card);border-radius:14px;margin-bottom:16px;box-shadow:0 10px 25px rgba(0,0,0,.06);overflow:hidden}
+.section-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer}
+.section-header h2{margin:0;font-size:17px}
+.toggle{font-size:18px;color:var(--muted)}
+.section-content{padding:16px;border-top:1px solid var(--border)}
 
-.section-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:14px 16px;
-  cursor:pointer;
-  user-select:none;
-}
-
-.section-header h2{
-  margin:0;
-  font-size:17px;
-}
-
-.toggle{
-  font-size:18px;
-  color:var(--muted);
-}
-
-.section-content{
-  padding:16px;
-  border-top:1px solid var(--border);
-}
-
-/* ---------- FORM ---------- */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:12px;
-}
-
-label{
-  font-size:12px;
-  font-weight:600;
-  color:var(--muted);
-}
-
-input{
-  width:100%;
-  padding:8px 10px;
-  font-size:14px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  margin-top:4px;
-}
-
-button{
-  border:none;
-  border-radius:12px;
-  padding:12px;
-  font-size:15px;
-  font-weight:600;
-  cursor:pointer;
-  background:var(--primary);
-  color:#fff;
-}
-
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+label{font-size:12px;font-weight:600;color:var(--muted)}
+input{width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--border)}
+button{border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--primary);color:#fff}
 button.secondary{background:#64748b}
 button.print{background:#16a34a}
+.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
 
-.actions{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:10px;
-  margin-bottom:12px;
-}
+#preview{max-width:120px;max-height:150px;border-radius:10px;border:1px solid var(--border);margin-top:8px}
 
-#preview{
-  max-width:120px;
-  max-height:150px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  margin-top:8px;
-}
-
-/* ---------- TABLE ---------- */
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:14px;
-  font-size:14px;
-}
-
-th,td{
-  padding:10px 8px;
-  border-bottom:1px solid var(--border);
-  text-align:center;
-}
-
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+th,td{padding:8px;border-bottom:1px solid var(--border);text-align:center}
 th{color:var(--muted)}
-
 .bad{color:var(--bad);font-weight:700}
 .mid{color:var(--mid);font-weight:700}
 .good{color:var(--good);font-weight:700}
 
-/* ---------- PRINT ---------- */
 @media print{
   @page{size:A4;margin:10mm}
-  body{background:#fff;font-size:12px}
   .section:not(#printSection){display:none}
-  button,input[type=file]{display:none!important}
+  button,input[type=file]{display:none}
 }
 </style>
 </head>
@@ -161,68 +56,62 @@ th{color:var(--muted)}
 
 <main>
 
-<!-- PRODUKT -->
-<div class="section" data-id="produkt">
-  <div class="section-header" onclick="toggleSection(this)">
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
     <h2>Produkt</h2><span class="toggle">▼</span>
   </div>
   <div class="section-content">
     <label>Produktname</label>
     <input id="produktname">
-
     <label>Produktbild</label>
     <input type="file" accept="image/*" onchange="bildLaden(event)">
     <img id="preview">
   </div>
 </div>
 
-<!-- EINKAUF -->
-<div class="section" data-id="einkauf">
-  <div class="section-header" onclick="toggleSection(this)">
-    <h2>Einkauf & DDP (pro Stück)</h2><span class="toggle">▼</span>
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Einkauf & DDP</h2><span class="toggle">▼</span>
   </div>
   <div class="section-content grid">
     <div><label>EK (€)</label><input id="ek"></div>
     <div><label>Gewicht (kg)</label><input id="gewicht"></div>
-    <div><label>Länge (cm)</label><input id="l"></div>
-    <div><label>Breite (cm)</label><input id="b"></div>
-    <div><label>Höhe (cm)</label><input id="h"></div>
+    <div><label>L (cm)</label><input id="l"></div>
+    <div><label>B (cm)</label><input id="b"></div>
+    <div><label>H (cm)</label><input id="h"></div>
     <div><label>Preis/kg (€)</label><input id="preisKg" value="6.5"></div>
     <div><label>DDP inkl. MwSt (€)</label><input id="ddp" readonly></div>
   </div>
 </div>
 
-<!-- GESAMTEINKAUF -->
-<div class="section" data-id="bulk">
-  <div class="section-header" onclick="toggleSection(this)">
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
     <h2>📦 Gesamteinkauf</h2><span class="toggle">▶</span>
   </div>
   <div class="section-content grid" style="display:none">
-    <div><label>Bestellmenge</label><input id="mengeEinkauf"></div>
-    <div><label>Gesamt EK (€)</label><input id="gesamtEK" readonly></div>
-    <div><label>Gesamt DDP (€)</label><input id="gesamtDDP" readonly></div>
-    <div><label>Gesamtkosten (€)</label><input id="gesamtEinkauf" readonly></div>
+    <div><label>Menge</label><input id="mengeEinkauf"></div>
+    <div><label>Gesamt EK</label><input id="gesamtEK" readonly></div>
+    <div><label>Gesamt DDP</label><input id="gesamtDDP" readonly></div>
+    <div><label>Gesamtkosten</label><input id="gesamtEinkauf" readonly></div>
   </div>
 </div>
 
-<!-- AMAZON -->
-<div class="section" data-id="amazon">
-  <div class="section-header" onclick="toggleSection(this)">
-    <h2>Amazon, Versand & Retouren</h2><span class="toggle">▶</span>
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>Amazon & Kosten</h2><span class="toggle">▶</span>
   </div>
   <div class="section-content grid" style="display:none">
     <div><label>Amazon %</label><input id="amazP" value="15"></div>
-    <div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
-    <div><label>PPC (€)</label><input id="ppc"></div>
-    <div><label>Versand (€)</label><input id="versand"></div>
-    <div><label>Verpackung (€)</label><input id="verpackung"></div>
-    <div><label>Retourquote (%)</label><input id="retour" value="5"></div>
+    <div><label>Amazon Fix</label><input id="amazFix" value="0.99"></div>
+    <div><label>PPC</label><input id="ppc"></div>
+    <div><label>Versand</label><input id="versand"></div>
+    <div><label>Verpackung</label><input id="verpackung"></div>
+    <div><label>Retour %</label><input id="retour" value="5"></div>
   </div>
 </div>
 
-<!-- PREISE -->
-<div class="section" data-id="preise">
-  <div class="section-header" onclick="toggleSection(this)">
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
     <h2>Verkaufspreise</h2><span class="toggle">▶</span>
   </div>
   <div class="section-content grid" style="display:none">
@@ -232,16 +121,13 @@ th{color:var(--muted)}
   </div>
 </div>
 
-<!-- ERGEBNIS -->
 <div class="section" id="printSection">
-  <div class="section-header">
-    <h2>Ergebnis & Setvergleich</h2>
-  </div>
+  <div class="section-header"><h2>Ergebnis</h2></div>
   <div class="section-content">
     <div class="actions">
       <button onclick="berechnen()">Berechnen</button>
       <button class="secondary" onclick="speichern()">Speichern</button>
-      <button class="print" onclick="window.print()">Drucken / PDF</button>
+      <button class="print" onclick="window.print()">Drucken</button>
     </div>
     <div id="ergebnis"></div>
   </div>
@@ -250,24 +136,72 @@ th{color:var(--muted)}
 </main>
 
 <script>
-function toggleSection(header){
-  const content = header.nextElementSibling;
-  const icon = header.querySelector(".toggle");
-  const open = content.style.display !== "none";
-  content.style.display = open ? "none" : "block";
-  icon.textContent = open ? "▶" : "▼";
+function toggle(h){
+  const c=h.nextElementSibling;
+  const i=h.querySelector(".toggle");
+  c.style.display=c.style.display==="none"?"block":"none";
+  i.textContent=c.style.display==="none"?"▶":"▼";
 }
 
 function bildLaden(e){
   const r=new FileReader();
-  r.onload=()=>{
-    preview.src=r.result;
-    localStorage.setItem("bild",r.result);
-  };
+  r.onload=()=>{preview.src=r.result;localStorage.setItem("bild",r.result)};
   r.readAsDataURL(e.target.files[0]);
 }
 
-/* ----- DEIN BESTEHENDER RECHEN-CODE BLEIBT UNVERÄNDERT ----- */
+function ampel(m){return m<20?"bad":m<25?"mid":"good"}
+
+function berechnen(){
+  const ek=+ek.value||0, g=+gewicht.value||0, l1=+l.value||0, b1=+b.value||0, h1=+h.value||0;
+  const preisKg=+preisKg.value||0, menge=+mengeEinkauf.value||0;
+  const amazP=+amazP.value/100, amazFix=+amazFix.value||0;
+  const ppc=+ppc.value||0, vers=+versand.value||0, verpack=+verpackung.value||0, retour=+retour.value/100;
+
+  const vol=(l1*b1*h1)/6000;
+  const gewichtAb=Math.max(g,vol);
+  const ddp=(gewichtAb*preisKg*1.19);
+  ddp.value=ddp.toFixed(2);
+
+  gesamtEK.value=(ek*menge).toFixed(2);
+  gesamtDDP.value=(ddp*menge).toFixed(2);
+  gesamtEinkauf.value=((ek+ddp)*menge).toFixed(2);
+
+  const sets=[[1,preis1.value],[2,preis2.value],[3,preis3.value]];
+  let rows="";
+
+  sets.forEach(([anz,p])=>{
+    const preis=+p||0; if(!preis) return;
+    const fix=(ek+ddp)*anz+amazFix+ppc+vers+verpack;
+    const ges=fix+preis*amazP+preis*retour;
+    const gew=preis-ges;
+    const marge=(gew/preis)*100;
+    const be=fix/(1-amazP-retour);
+
+    rows+=`<tr>
+      <td>${anz}er</td><td>${preis.toFixed(2)}</td><td>${ges.toFixed(2)}</td>
+      <td>${gew.toFixed(2)}</td>
+      <td class="${ampel(marge)}">${marge.toFixed(2)}%</td>
+      <td>${be.toFixed(2)}</td></tr>`;
+  });
+
+  ergebnis.innerHTML=`<table>
+    <tr><th>Set</th><th>Preis</th><th>Kosten</th><th>Gewinn</th><th>Marge</th><th>Break-even</th></tr>
+    ${rows}</table>`;
+}
+
+function speichern(){
+  const d={}; document.querySelectorAll("input").forEach(i=>d[i.id]=i.value);
+  localStorage.setItem("daten",JSON.stringify(d));
+  alert("Gespeichert");
+}
+
+window.onload=()=>{
+  if(localStorage.getItem("bild")) preview.src=localStorage.getItem("bild");
+  if(localStorage.getItem("daten")){
+    const d=JSON.parse(localStorage.getItem("daten"));
+    Object.keys(d).forEach(k=>document.getElementById(k)&&(document.getElementById(k).value=d[k]));
+  }
+}
 </script>
 
 </body>
