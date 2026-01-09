@@ -2,25 +2,25 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Amazon Kostenkalkulation – Setvergleich</title>
+<title>Amazon Kostenkalkulation</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background:#f4f6f8;
+  background:#f5f7fb;
   margin:0;
   color:#111827;
 }
 header{
   background:linear-gradient(135deg,#1e3a8a,#2563eb);
-  color:#fff;
+  color:white;
   padding:18px;
   text-align:center;
 }
 main{max-width:1000px;margin:auto;padding:14px;}
 section{
-  background:#fff;
+  background:white;
   padding:14px;
   margin-bottom:14px;
   border-radius:10px;
@@ -45,8 +45,8 @@ button{
   font-size:15px;
   cursor:pointer;
 }
-button.print{background:#16a34a;}
 button.secondary{background:#6b7280;}
+button.print{background:#16a34a;}
 #preview{max-width:120px;max-height:150px;border:1px solid #ccc;margin-top:6px;}
 .bad{color:#dc2626;font-weight:bold;}
 .mid{color:#d97706;font-weight:bold;}
@@ -54,6 +54,7 @@ button.secondary{background:#6b7280;}
 table{width:100%;border-collapse:collapse;margin-top:10px;}
 th,td{border:1px solid #e5e7eb;padding:6px;text-align:center;font-size:13px;}
 th{background:#f1f5f9;}
+
 @media print{
   @page{size:A4;margin:10mm;}
   body{background:white;font-size:12px;}
@@ -77,9 +78,16 @@ th{background:#f1f5f9;}
 <section>
 <h2>Produkt</h2>
 <div class="grid">
-<div><label>Produktname</label><input id="produktname"></div>
-<div><label>Verkaufspreis pro Stück (€)</label><input id="verkauf"></div>
+  <div>
+    <label>Produktname</label>
+    <input id="produktname">
+  </div>
+  <div>
+    <label>Verkaufspreis pro Stück (€)</label>
+    <input id="verkauf">
+  </div>
 </div>
+
 <label>Produktbild</label>
 <input type="file" accept="image/*" onchange="bildLaden(event)">
 <img id="preview">
@@ -88,25 +96,25 @@ th{background:#f1f5f9;}
 <section>
 <h2>Einkauf & DDP (inkl. 19 % MwSt)</h2>
 <div class="grid">
-<div><label>EK pro Stück (€)</label><input id="ek"></div>
-<div><label>Gewicht (kg)</label><input id="gewicht"></div>
-<div><label>Länge (cm)</label><input id="l"></div>
-<div><label>Breite (cm)</label><input id="b"></div>
-<div><label>Höhe (cm)</label><input id="h"></div>
-<div><label>Preis pro kg (€)</label><input id="preisKg" value="6.5"></div>
-<div><label>DDP pro Stück</label><input id="ddp" readonly></div>
+  <div><label>EK pro Stück (€)</label><input id="ek"></div>
+  <div><label>Gewicht (kg)</label><input id="gewicht"></div>
+  <div><label>Länge (cm)</label><input id="l"></div>
+  <div><label>Breite (cm)</label><input id="b"></div>
+  <div><label>Höhe (cm)</label><input id="h"></div>
+  <div><label>Preis pro kg (€)</label><input id="preisKg" value="6.5"></div>
+  <div><label>DDP automatisch (€)</label><input id="ddp" readonly></div>
 </div>
 </section>
 
 <section>
 <h2>Amazon, Versand & Retouren</h2>
 <div class="grid">
-<div><label>Amazon Provision (%)</label><input id="amazP" value="15"></div>
-<div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
-<div><label>PPC (€)</label><input id="ppc" value="0"></div>
-<div><label>Versand (€)</label><input id="versand" value="0"></div>
-<div><label>Verpackung (€)</label><input id="verpackung" value="0"></div>
-<div><label>Retourquote (%)</label><input id="retour" value="5"></div>
+  <div><label>Amazon Provision (%)</label><input id="amazP" value="15"></div>
+  <div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
+  <div><label>PPC (€)</label><input id="ppc" value="0"></div>
+  <div><label>Versand (€)</label><input id="versand" value="0"></div>
+  <div><label>Verpackung (€)</label><input id="verpackung" value="0"></div>
+  <div><label>Retourquote (%)</label><input id="retour" value="5"></div>
 </div>
 </section>
 
@@ -125,44 +133,63 @@ th{background:#f1f5f9;}
 <script>
 function bildLaden(e){
   const r=new FileReader();
-  r.onload=()=>{preview.src=r.result;localStorage.setItem("bild",r.result);}
+  r.onload=()=>{
+    preview.src=r.result;
+    localStorage.setItem("bild",r.result);
+  };
   r.readAsDataURL(e.target.files[0]);
 }
 
+function ampel(m){
+  if(m<20) return "bad";
+  if(m<25) return "mid";
+  return "good";
+}
+
 function berechnen(){
-  const ek=+ek.value;
-  const gewicht=+gewicht.value;
-  const l1=+l.value,b1=+b.value,h1=+h.value;
-  const preisKg=+preisKg.value;
-  const verk=+verkauf.value;
-  const amazGeb=verk*(+amazP.value/100)+ +amazFix.value;
-  const basisExtra=+ppc.value+ +versand.value+ +verpackung.value;
+  const ekW=+ek.value||0;
+  const gewichtW=+gewicht.value||0;
+  const l1=+l.value||0,b1=+b.value||0,h1=+h.value||0;
+  const preisKgW=+preisKg.value||0;
+  const verk=+verkauf.value||0;
+
+  const amazPrc=+amazP.value/100;
+  const amazFixW=+amazFix.value||0;
+  const ppcW=+ppc.value||0;
+  const versW=+versand.value||0;
+  const verpackW=+verpackung.value||0;
   const retourP=+retour.value/100;
 
   const volGew=(l1*b1*h1)/6000;
-  const abrechnung=Math.max(gewicht,volGew);
-  const ddpNetto=abrechnung*preisKg;
-  const ddpMwst=ddpNetto*1.19;
+  const abrechnung=Math.max(gewichtW,volGew);
+  const ddpMwst=abrechnung*preisKgW*1.19;
   ddp.value=ddpMwst.toFixed(2);
 
   let rows="";
   [1,2,3].forEach(set=>{
-    const waren=(ek+ddpMwst)*set;
-    const gesamt=waren+amazGeb+basisExtra+(verk*set*retourP);
-    const gewinn=verk*set-gesamt;
-    const marge=(gewinn/(verk*set))*100;
-    const cls=marge<20?"bad":marge<25?"mid":"good";
-    rows+=`<tr>
-      <td>${set}er Set</td>
-      <td>${gewinn.toFixed(2)} €</td>
-      <td class="${cls}">${marge.toFixed(2)} %</td>
-    </tr>`;
+    const umsatz=verk*set;
+    const waren=(ekW+ddpMwst)*set;
+    const amazon=umsatz*amazPrc+amazFixW;
+    const retourK=umsatz*retourP;
+    const gesamt=waren+amazon+ppcW+versW+verpackW+retourK;
+    const gewinn=umsatz-gesamt;
+    const marge=umsatz?(gewinn/umsatz)*100:0;
+
+    rows+=`
+      <tr>
+        <td>${set}er Set</td>
+        <td>${umsatz.toFixed(2)} €</td>
+        <td>${gesamt.toFixed(2)} €</td>
+        <td>${gewinn.toFixed(2)} €</td>
+        <td class="${ampel(marge)}">${marge.toFixed(2)} %</td>
+      </tr>`;
   });
 
   ergebnis.innerHTML=`
-    <p><strong>DDP pro Stück:</strong> ${ddpMwst.toFixed(2)} €</p>
+    <p><strong>Abrechnungsgewicht:</strong> ${abrechnung.toFixed(2)} kg</p>
+    <p><strong>DDP pro Stück (inkl. MwSt):</strong> ${ddpMwst.toFixed(2)} €</p>
     <table>
-      <tr><th>Set</th><th>Gewinn</th><th>Marge</th></tr>
+      <tr><th>Set</th><th>Umsatz</th><th>Gesamtkosten</th><th>Gewinn</th><th>Marge</th></tr>
       ${rows}
     </table>`;
 }
@@ -175,14 +202,16 @@ function speichern(){
     ppc:ppc.value,versand:versand.value,verpackung:verpackung.value,retour:retour.value
   };
   localStorage.setItem("daten",JSON.stringify(d));
-  alert("Gespeichert");
+  alert("Produkt gespeichert");
 }
 
 window.onload=()=>{
-  if(localStorage.getItem("bild"))preview.src=localStorage.getItem("bild");
+  if(localStorage.getItem("bild")) preview.src=localStorage.getItem("bild");
   if(localStorage.getItem("daten")){
     const d=JSON.parse(localStorage.getItem("daten"));
-    Object.keys(d).forEach(k=>document.getElementById(k).value=d[k]);
+    Object.keys(d).forEach(k=>{
+      if(document.getElementById(k)) document.getElementById(k).value=d[k];
+    });
   }
 };
 </script>
