@@ -161,21 +161,23 @@
     display: block;
     margin-bottom: 2px;
   }
-  button,
-  input[type="file"] {
+  /* ❌ Analyse- & Eingabebereiche NUR beim Drucken ausblenden */
+  section:not(#ergebnis) {
     display: none;
   }
-  /* ❌ Analyse- & Eingabebereiche nicht drucken */
-section:not(#ergebnis),
-#setVergleich {
-  display: none;
-}
 
-/* ✅ Ergebnis immer anzeigen */
-#ergebnis {
-  display: block;
-}
+  /* ✅ Ergebnis im Druck anzeigen */
+  #ergebnis {
+    display: block;
   }
+
+  /* ❌ Buttons & Upload nur im Druck ausblenden */
+  button,
+  input[type="file"] {
+    display: none !important;
+  }
+
+} /* ⬅️ DAS ist die EINZIGE schließende Klammer von @media print */
 
 </style>
 
@@ -305,6 +307,7 @@ section:not(#ergebnis),
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
