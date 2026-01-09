@@ -52,10 +52,7 @@ section{
   box-shadow:0 10px 25px rgba(0,0,0,.06);
 }
 
-h2{
-  margin:0 0 14px;
-  font-size:18px;
-}
+h2{margin:0 0 14px;font-size:18px}
 
 .grid{
   display:grid;
@@ -78,11 +75,6 @@ input{
   margin-top:4px;
 }
 
-input:focus{
-  outline:none;
-  border-color:var(--primary);
-}
-
 button{
   border:none;
   border-radius:12px;
@@ -94,7 +86,6 @@ button{
   color:#fff;
 }
 
-button:hover{background:var(--primary-dark)}
 button.secondary{background:#64748b}
 button.print{background:#16a34a}
 
@@ -105,7 +96,7 @@ button.print{background:#16a34a}
   margin-bottom:12px;
 }
 
-/* Bild */
+/* Produktbild */
 #preview{
   max-width:120px;
   max-height:150px;
@@ -128,23 +119,35 @@ th,td{
   text-align:center;
 }
 
-th{
-  color:var(--muted);
-  font-weight:600;
-}
+th{color:var(--muted);font-weight:600}
 
 .bad{color:var(--bad);font-weight:700}
 .mid{color:var(--mid);font-weight:700}
 .good{color:var(--good);font-weight:700}
 
-/* DRUCK */
+/* ============ DRUCK ============ */
 @media print{
   @page{size:A4;margin:10mm}
   body{background:#fff;font-size:12px}
+
   section{box-shadow:none}
+
+  /* NUR Druckbereich */
   section:not(#printSection){display:none}
+
   button,input[type=file]{display:none!important}
-  #preview{max-width:80px;max-height:100px;margin:auto}
+
+  .print-header{
+    text-align:center;
+    margin-bottom:12px;
+  }
+
+  .print-header img{
+    max-width:90px;
+    max-height:110px;
+    display:block;
+    margin:6px auto;
+  }
 }
 </style>
 </head>
@@ -158,14 +161,12 @@ th{
 
 <main>
 
+<!-- PRODUKT (Browser-Eingabe) -->
 <section>
   <h2>Produkt</h2>
-  <div class="grid">
-    <div>
-      <label>Produktname</label>
-      <input id="produktname">
-    </div>
-  </div>
+
+  <label>Produktname</label>
+  <input id="produktname">
 
   <label>Produktbild</label>
   <input type="file" accept="image/*" onchange="bildLaden(event)">
@@ -175,39 +176,43 @@ th{
 <section>
   <h2>Einkauf & DDP (inkl. 19 % MwSt)</h2>
   <div class="grid">
-    <div><label>EK pro Stück (€)</label><input id="ek"></div>
+    <div><label>EK (€)</label><input id="ek"></div>
     <div><label>Gewicht (kg)</label><input id="gewicht"></div>
     <div><label>Länge (cm)</label><input id="l"></div>
     <div><label>Breite (cm)</label><input id="b"></div>
     <div><label>Höhe (cm)</label><input id="h"></div>
-    <div><label>Preis pro kg (€)</label><input id="preisKg" value="6.5"></div>
-    <div><label>DDP pro Stück</label><input id="ddp" readonly></div>
+    <div><label>Preis/kg (€)</label><input id="preisKg" value="6.5"></div>
+    <div><label>DDP (€)</label><input id="ddp" readonly></div>
   </div>
 </section>
 
 <section>
   <h2>Amazon, Versand & Retouren</h2>
   <div class="grid">
-    <div><label>Amazon Provision (%)</label><input id="amazP" value="15"></div>
+    <div><label>Amazon %</label><input id="amazP" value="15"></div>
     <div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
-    <div><label>PPC pro Set (€)</label><input id="ppc" value="0"></div>
-    <div><label>Versand pro Set (€)</label><input id="versand" value="0"></div>
-    <div><label>Verpackung pro Set (€)</label><input id="verpackung" value="0"></div>
+    <div><label>PPC (€)</label><input id="ppc" value="0"></div>
+    <div><label>Versand (€)</label><input id="versand" value="0"></div>
+    <div><label>Verpackung (€)</label><input id="verpackung" value="0"></div>
     <div><label>Retourquote (%)</label><input id="retour" value="5"></div>
   </div>
 </section>
 
 <section>
-  <h2>Verkaufspreise (manuell)</h2>
+  <h2>Verkaufspreise</h2>
   <div class="grid">
-    <div><label>1er Set Preis (€)</label><input id="preis1"></div>
-    <div><label>2er Set Preis (€)</label><input id="preis2"></div>
-    <div><label>3er Set Preis (€)</label><input id="preis3"></div>
+    <div><label>1er Set (€)</label><input id="preis1"></div>
+    <div><label>2er Set (€)</label><input id="preis2"></div>
+    <div><label>3er Set (€)</label><input id="preis3"></div>
   </div>
 </section>
 
+<!-- DRUCKBEREICH -->
 <section id="printSection">
-  <h2>Ergebnis & Setvergleich</h2>
+  <div class="print-header">
+    <h2 id="printName"></h2>
+    <img id="printImage">
+  </div>
 
   <div class="actions">
     <button onclick="berechnen()">Berechnen</button>
@@ -225,6 +230,7 @@ function bildLaden(e){
   const r=new FileReader();
   r.onload=()=>{
     preview.src=r.result;
+    printImage.src=r.result;
     localStorage.setItem("bild",r.result);
   };
   r.readAsDataURL(e.target.files[0]);
@@ -237,6 +243,8 @@ function ampel(m){
 }
 
 function berechnen(){
+  printName.textContent = produktname.value || "";
+
   const ekW=+ek.value||0;
   const gewichtW=+gewicht.value||0;
   const l1=+l.value||0,b1=+b.value||0,h1=+h.value||0;
@@ -267,11 +275,11 @@ function berechnen(){
 
     const umsatz=s.preis;
     const waren=(ekW+ddpMwst)*s.anz;
-    const fixKosten=waren+amazFixW+ppcW+versW+verpackW;
-    const gesamt=fixKosten+(umsatz*amazPrc)+(umsatz*retourP);
+    const fix=waren+amazFixW+ppcW+versW+verpackW;
+    const gesamt=fix+(umsatz*amazPrc)+(umsatz*retourP);
     const gewinn=umsatz-gesamt;
     const marge=umsatz?(gewinn/umsatz)*100:0;
-    const breakEven=fixKosten/(1-amazPrc-retourP);
+    const breakEven=fix/(1-amazPrc-retourP);
 
     rows+=`
       <tr>
@@ -291,8 +299,8 @@ function berechnen(){
     <table>
       <tr>
         <th>Set</th>
-        <th>Verkaufspreis</th>
-        <th>Gesamtkosten</th>
+        <th>Preis</th>
+        <th>Kosten</th>
         <th>Gewinn</th>
         <th>Marge</th>
         <th>Break-even</th>
@@ -310,11 +318,14 @@ function speichern(){
     preis1:preis1.value,preis2:preis2.value,preis3:preis3.value
   };
   localStorage.setItem("daten",JSON.stringify(d));
-  alert("Produkt gespeichert");
+  alert("Gespeichert");
 }
 
 window.onload=()=>{
-  if(localStorage.getItem("bild")) preview.src=localStorage.getItem("bild");
+  if(localStorage.getItem("bild")){
+    preview.src=localStorage.getItem("bild");
+    printImage.src=localStorage.getItem("bild");
+  }
   if(localStorage.getItem("daten")){
     const d=JSON.parse(localStorage.getItem("daten"));
     Object.keys(d).forEach(k=>{
