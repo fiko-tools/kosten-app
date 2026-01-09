@@ -165,11 +165,16 @@
   input[type="file"] {
     display: none;
   }
-    /* 🔒 Finaler 1-Seiten-Fix */
-  main {
-    transform: scale(0.95);
-    transform-origin: top left;
-  }
+  /* ❌ Analyse- & Eingabebereiche nicht drucken */
+section:not(#ergebnis),
+#setVergleich {
+  display: none;
+}
+
+/* ✅ Ergebnis immer anzeigen */
+#ergebnis {
+  display: block;
+}
   }
 
 </style>
@@ -300,6 +305,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
