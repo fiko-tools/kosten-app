@@ -1,85 +1,96 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Amazon Kostenkalkulation – Kleinunternehmer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Amazon Kostenkalkulation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f3f4f6;
-    margin: 0;
-  }
+<style>
+/* ===== BASIS ===== */
+body {
+  font-family: Arial, sans-serif;
+  background: #f3f4f6;
+  margin: 0;
+}
 
-  header {
-    background: #111827;
-    color: #ffffff;
-    padding: 16px;
-    text-align: center;
-  }
+header {
+  background: #111827;
+  color: #fff;
+  padding: 16px;
+  text-align: center;
+}
 
-  main {
-    max-width: 900px;
-    margin: auto;
-    padding: 16px;
-  }
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 16px;
+}
 
-  section {
-    background: #ffffff;
-    padding: 16px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
+section {
+  background: #fff;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
 
-  h2 {
-    margin-top: 0;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 6px;
-  }
+h2 {
+  margin-top: 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 6px;
+}
 
-  label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
-  }
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
 
-  input,
-  select {
-    width: 100%;
-    padding: 8px;
-    margin-top: 4px;
-    box-sizing: border-box;
-  }
+input, select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  box-sizing: border-box;
+}
 
-  button {
-    margin-top: 16px;
-    padding: 14px;
-    width: 100%;
-    font-size: 16px;
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
+button {
+  margin-top: 12px;
+  padding: 12px;
+  width: 100%;
+  font-size: 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-  button:hover {
-    background: #1e40af;
-  }
-/* Produktbild – normale Ansicht */
+button:hover {
+  background: #1e40af;
+}
+
+/* ===== PRODUKTBILD (SCREEN) ===== */
 #preview {
   max-width: 120px;
   max-height: 160px;
-  width: auto;
-  height: auto;
   display: block;
   margin-top: 8px;
   border: 1px solid #ccc;
 }
-  /* ===== DRUCK: ALLES AUF 1 DIN A4 ===== */
+
+/* ===== ERGEBNIS ===== */
+#ergebnis {
+  margin-top: 12px;
+}
+
+.gewinn { color: #16a34a; font-weight: bold; }
+.verlust { color: #dc2626; font-weight: bold; }
+
+/* ================================================= */
+/* =================== DRUCK ======================= */
+/* ================================================= */
 @media print {
+
   @page {
     size: A4 portrait;
     margin: 8mm;
@@ -91,78 +102,44 @@
     line-height: 1.2;
   }
 
-  #printHeader {
-    display: block;
-    text-align: center;
+  header {
+    background: none;
+    color: black;
+    padding: 0;
     margin-bottom: 6px;
   }
 
-  h1 {
-    font-size: 16px;
-    margin: 0 0 4px 0;
-  }
-
-  h2 {
-    font-size: 13px;
-    margin: 6px 0 4px 0;
-  }
-
-  p, span, label {
-    font-size: 11px;
-  }
-
-  section, .box {
+  section {
     box-shadow: none;
     border: 1px solid #ccc;
     padding: 6px;
     margin-bottom: 6px;
   }
-/* Produktbild im Druck stark verkleinern */
+
+  h2 {
+    font-size: 13px;
+    margin: 4px 0;
+  }
+
+  /* Produktbild im PDF */
   #preview {
-  max-width: 80px;
-  max-height: 100px;
-  width: auto;
-  height: auto;
-  margin: 0 auto 4px auto;
-  display: block;
-  }
-}
-  }
-  /* Set-Vergleich kompakt für Druck */
-  #setVergleich {
-    font-size: 9px;
-    line-height: 1.1;
+    max-width: 80px;
+    max-height: 100px;
+    margin: 0 auto 4px auto;
   }
 
-  #setVergleich br {
+  /* Alles außer Ergebnis ausblenden */
+  section:not(#ergebnisSection) {
     display: none;
   }
 
-  #setVergleich span {
-    display: block;
-    margin-bottom: 2px;
-  }
-  /* ❌ Analyse- & Eingabebereiche NUR beim Drucken ausblenden */
-  section:not(#ergebnis) {
-    display: none;
-  }
-
-  /* ✅ Ergebnis im Druck anzeigen */
-  #ergebnis {
-    display: block;
-  }
-
-  /* ❌ Buttons & Upload nur im Druck ausblenden */
+  /* Buttons & Upload ausblenden */
   button,
   input[type="file"] {
     display: none !important;
   }
-
-} /* ⬅️ DAS ist die EINZIGE schließende Klammer von @media print */
-
+}
 </style>
-
-
 </head>
 
 <body>
@@ -173,121 +150,61 @@
 </header>
 
 <main>
-  <!-- Druck-Kopfzeile (nur für PDF / Drucken) -->
-<div id="printHeader">
-  <h1 id="printProdukt"></h1>
-  <p id="printDatum"></p>
-</div>
 
-  <!-- PRODUKT -->
-  <section>
-    <section>
+<section>
   <h2>1️⃣ Produkt</h2>
 
   <label>Produktname</label>
-  <input type="text" id="produkt">
+  <input type="text">
+
   <label>Produktbild</label>
-<input type="file" id="bild" accept="image/*" onchange="bildLaden(event)">
-<img id="preview" class="produktbild">    
+  <input type="file" accept="image/*" onchange="loadImage(event)">
+  <img id="preview">
 
 </section>
-
-    <label>Stück pro Set</label>
-    <input type="number" id="set" value="1">
-  </section>
-
-  <!-- DDP -->
-  <section>
-    <h2>2️⃣ Einkauf & DDP (inkl. 19 % MwSt)</h2>
-
-    <label>EK pro Stück</label>
-    <input type="number" id="ek">
-
-    <label>Währung</label>
-    <select id="waehrung">
-      <option value="eur">EUR</option>
-      <option value="usd">USD</option>
-    </select>
-
-    <label>Gewicht pro Stück (kg)</label>
-    <input type="number" step="0.01" id="gewicht">
-
-    <label>Maße pro Stück (cm)</label>
-    <input type="number" placeholder="Länge" id="laenge">
-    <input type="number" placeholder="Breite" id="breite">
-    <input type="number" placeholder="Höhe" id="hoehe">
-
-    <label>DDP Kosten pro Stück (automatisch)</label>
-    <input type="number" id="ddp" readonly>
-  </section>
-
-  <!-- AMAZON -->
-  <section>
-    <h2>3️⃣ Amazon Kosten</h2>
-
-    <label>Amazon Verkaufsgebühr (%)</label>
-    <input type="number" id="amazon_prozent" value="15">
-
-    <label>Amazon Fixgebühr (€)</label>
-    <input type="number" id="amazon_fix" value="0.99">
-
-    <label>Werbung / PPC (€)</label>
-    <input type="number" id="ppc" value="3">
-  </section>
-
-  <!-- VERSAND -->
-  <section>
-    <h2>4️⃣ Versand & Verpackung</h2>
-
-    <label>Versandkosten pro Set (€)</label>
-    <input type="number" id="versand">
-
-    <label>Verpackungskosten pro Set (€)</label>
-    <input type="number" id="verpackung">
-  </section>
-
-  <!-- VERKAUF -->
-  <section>
-    <h2>5️⃣ Verkauf</h2>
-
-    <label>Verkaufspreis (€)</label>
-    <input type="number" id="verkauf">
-  </section>
-
-  <!-- ERGEBNIS -->
-  <section id="ergebnis">
-    <h2>6️⃣ Ergebnis</h2>
-    <button onclick="berechnen()">Berechnen</button>
-   <button onclick="speichern()">Produkt speichern</button>
-  <button onclick="window.print()">Drucken / PDF</button>
-
-    <div id="output" class="box"></div>
-  </section>
-
 
 <section>
-  <h2>7️⃣ Set-Vergleich</h2>
+  <h2>2️⃣ Einkauf & DDP</h2>
 
-  <label>Verkaufspreis 1er-Set (€)</label>
-  <input type="number" id="preis1">
+  <label>EK pro Stück (€)</label>
+  <input type="number">
 
-  <label>Verkaufspreis 2er-Set (€)</label>
-  <input type="number" id="preis2">
+  <label>DDP pro Stück (€)</label>
+  <input type="number">
 
-  <label>Verkaufspreis 3er-Set (€)</label>
-  <input type="number" id="preis3">
-
-  <button onclick="setVergleich()">Set-Vergleich berechnen</button>
-
-  <div id="setErgebnis" class="box"></div>
 </section>
 
+<section>
+  <h2>3️⃣ Verkauf</h2>
+
+  <label>Verkaufspreis (€)</label>
+  <input type="number">
+</section>
+
+<section id="ergebnisSection">
+  <h2>✅ Ergebnis</h2>
+
+  <button onclick="window.print()">Drucken / PDF</button>
+
+  <div id="ergebnis">
+    <p>Gesamtkosten: 42,74 €</p>
+    <p class="gewinn">Gewinn: 3,41 €</p>
+    <p class="verlust">Marge: -8,06 %</p>
+  </div>
+</section>
 
 </main>
 
-<script src="app.js"></script>
+<script>
+function loadImage(e) {
+  const img = document.getElementById("preview");
+  img.src = URL.createObjectURL(e.target.files[0]);
+}
+</script>
+
 </body>
 </html>
+
 
 
 
