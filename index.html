@@ -2,66 +2,149 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Amazon Kostenkalkulation – Setpreise manuell</title>
+<title>Amazon Kostenkalkulation – Set & Break-even</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background:#f5f7fb;
-  margin:0;
-  color:#111827;
+:root{
+  --bg:#f6f8fc;
+  --card:#ffffff;
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --text:#0f172a;
+  --muted:#64748b;
+  --border:#e5e7eb;
+  --bad:#dc2626;
+  --mid:#d97706;
+  --good:#16a34a;
 }
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
 header{
   background:linear-gradient(135deg,#1e3a8a,#2563eb);
-  color:white;
-  padding:18px;
+  color:#fff;
+  padding:22px 16px;
   text-align:center;
 }
-main{max-width:1000px;margin:auto;padding:14px;}
-section{
-  background:white;
-  padding:14px;
-  margin-bottom:14px;
-  border-radius:10px;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
+
+header h1{margin:0;font-size:22px}
+header p{margin:6px 0 0;font-size:14px;opacity:.9}
+
+main{
+  max-width:1100px;
+  margin:auto;
+  padding:16px;
 }
-h2{margin:0 0 10px;font-size:18px;border-bottom:1px solid #e5e7eb;padding-bottom:6px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
-label{font-size:13px;font-weight:600;}
+
+section{
+  background:var(--card);
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.06);
+}
+
+h2{
+  margin:0 0 14px;
+  font-size:18px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;
+}
+
+label{
+  font-size:12px;
+  font-weight:600;
+  color:var(--muted);
+}
+
 input{
   width:100%;
-  padding:6px 8px;
+  padding:8px 10px;
   font-size:14px;
-  border:1px solid #d1d5db;
-  border-radius:6px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-top:4px;
 }
-button{
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#2563eb;
-  color:white;
-  font-size:15px;
-  cursor:pointer;
-}
-button.secondary{background:#6b7280;}
-button.print{background:#16a34a;}
-#preview{max-width:120px;max-height:150px;border:1px solid #ccc;margin-top:6px;}
-.bad{color:#dc2626;font-weight:bold;}
-.mid{color:#d97706;font-weight:bold;}
-.good{color:#16a34a;font-weight:bold;}
-table{width:100%;border-collapse:collapse;margin-top:10px;}
-th,td{border:1px solid #e5e7eb;padding:6px;text-align:center;font-size:13px;}
-th{background:#f1f5f9;}
 
+input:focus{
+  outline:none;
+  border-color:var(--primary);
+}
+
+button{
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  background:var(--primary);
+  color:#fff;
+}
+
+button:hover{background:var(--primary-dark)}
+button.secondary{background:#64748b}
+button.print{background:#16a34a}
+
+.actions{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+  margin-bottom:12px;
+}
+
+/* Bild */
+#preview{
+  max-width:120px;
+  max-height:150px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  margin-top:8px;
+}
+
+/* Tabelle */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:14px;
+  font-size:14px;
+}
+
+th,td{
+  padding:10px 8px;
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+
+th{
+  color:var(--muted);
+  font-weight:600;
+}
+
+.bad{color:var(--bad);font-weight:700}
+.mid{color:var(--mid);font-weight:700}
+.good{color:var(--good);font-weight:700}
+
+/* DRUCK */
 @media print{
-  @page{size:A4;margin:10mm;}
-  body{background:white;font-size:12px;}
-  section{box-shadow:none;}
-  section:not(#printSection){display:none;}
-  button,input[type=file]{display:none!important;}
-  #preview{max-width:80px;max-height:100px;margin:auto;}
+  @page{size:A4;margin:10mm}
+  body{background:#fff;font-size:12px}
+  section{box-shadow:none}
+  section:not(#printSection){display:none}
+  button,input[type=file]{display:none!important}
+  #preview{max-width:80px;max-height:100px;margin:auto}
 }
 </style>
 </head>
@@ -69,68 +152,70 @@ th{background:#f1f5f9;}
 <body>
 
 <header>
-<h1>Amazon Kostenkalkulation</h1>
-<p>Kleinunternehmer · manuelle Setpreise · korrekte Marge</p>
+  <h1>Amazon Kostenkalkulation</h1>
+  <p>Kleinunternehmer · Setpreise manuell · Break-even</p>
 </header>
 
 <main>
 
 <section>
-<h2>Produkt</h2>
-<div class="grid">
-  <div>
-    <label>Produktname</label>
-    <input id="produktname">
+  <h2>Produkt</h2>
+  <div class="grid">
+    <div>
+      <label>Produktname</label>
+      <input id="produktname">
+    </div>
   </div>
-</div>
 
-<label>Produktbild</label>
-<input type="file" accept="image/*" onchange="bildLaden(event)">
-<img id="preview">
+  <label>Produktbild</label>
+  <input type="file" accept="image/*" onchange="bildLaden(event)">
+  <img id="preview">
 </section>
 
 <section>
-<h2>Einkauf & DDP (inkl. 19 % MwSt)</h2>
-<div class="grid">
-  <div><label>EK pro Stück (€)</label><input id="ek"></div>
-  <div><label>Gewicht (kg)</label><input id="gewicht"></div>
-  <div><label>Länge (cm)</label><input id="l"></div>
-  <div><label>Breite (cm)</label><input id="b"></div>
-  <div><label>Höhe (cm)</label><input id="h"></div>
-  <div><label>Preis pro kg (€)</label><input id="preisKg" value="6.5"></div>
-  <div><label>DDP pro Stück</label><input id="ddp" readonly></div>
-</div>
+  <h2>Einkauf & DDP (inkl. 19 % MwSt)</h2>
+  <div class="grid">
+    <div><label>EK pro Stück (€)</label><input id="ek"></div>
+    <div><label>Gewicht (kg)</label><input id="gewicht"></div>
+    <div><label>Länge (cm)</label><input id="l"></div>
+    <div><label>Breite (cm)</label><input id="b"></div>
+    <div><label>Höhe (cm)</label><input id="h"></div>
+    <div><label>Preis pro kg (€)</label><input id="preisKg" value="6.5"></div>
+    <div><label>DDP pro Stück</label><input id="ddp" readonly></div>
+  </div>
 </section>
 
 <section>
-<h2>Amazon, Versand & Retouren</h2>
-<div class="grid">
-  <div><label>Amazon Provision (%)</label><input id="amazP" value="15"></div>
-  <div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
-  <div><label>PPC pro Set (€)</label><input id="ppc" value="0"></div>
-  <div><label>Versand pro Set (€)</label><input id="versand" value="0"></div>
-  <div><label>Verpackung pro Set (€)</label><input id="verpackung" value="0"></div>
-  <div><label>Retourquote (%)</label><input id="retour" value="5"></div>
-</div>
+  <h2>Amazon, Versand & Retouren</h2>
+  <div class="grid">
+    <div><label>Amazon Provision (%)</label><input id="amazP" value="15"></div>
+    <div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
+    <div><label>PPC pro Set (€)</label><input id="ppc" value="0"></div>
+    <div><label>Versand pro Set (€)</label><input id="versand" value="0"></div>
+    <div><label>Verpackung pro Set (€)</label><input id="verpackung" value="0"></div>
+    <div><label>Retourquote (%)</label><input id="retour" value="5"></div>
+  </div>
 </section>
 
 <section>
-<h2>Verkaufspreise (manuell)</h2>
-<div class="grid">
-  <div><label>1er Set Preis (€)</label><input id="preis1"></div>
-  <div><label>2er Set Preis (€)</label><input id="preis2"></div>
-  <div><label>3er Set Preis (€)</label><input id="preis3"></div>
-</div>
+  <h2>Verkaufspreise (manuell)</h2>
+  <div class="grid">
+    <div><label>1er Set Preis (€)</label><input id="preis1"></div>
+    <div><label>2er Set Preis (€)</label><input id="preis2"></div>
+    <div><label>3er Set Preis (€)</label><input id="preis3"></div>
+  </div>
 </section>
 
 <section id="printSection">
-<h2>Ergebnis & Setvergleich</h2>
+  <h2>Ergebnis & Setvergleich</h2>
 
-<button onclick="berechnen()">Berechnen</button>
-<button class="secondary" onclick="speichern()">Speichern</button>
-<button class="print" onclick="window.print()">Drucken / PDF</button>
+  <div class="actions">
+    <button onclick="berechnen()">Berechnen</button>
+    <button class="secondary" onclick="speichern()">Speichern</button>
+    <button class="print" onclick="window.print()">Drucken / PDF</button>
+  </div>
 
-<div id="ergebnis"></div>
+  <div id="ergebnis"></div>
 </section>
 
 </main>
@@ -179,13 +264,14 @@ function berechnen(){
 
   sets.forEach(s=>{
     if(!s.preis) return;
+
     const umsatz=s.preis;
     const waren=(ekW+ddpMwst)*s.anz;
-    const amazon=umsatz*amazPrc+amazFixW;
-    const retourK=umsatz*retourP;
-    const gesamt=waren+amazon+ppcW+versW+verpackW+retourK;
+    const fixKosten=waren+amazFixW+ppcW+versW+verpackW;
+    const gesamt=fixKosten+(umsatz*amazPrc)+(umsatz*retourP);
     const gewinn=umsatz-gesamt;
     const marge=umsatz?(gewinn/umsatz)*100:0;
+    const breakEven=fixKosten/(1-amazPrc-retourP);
 
     rows+=`
       <tr>
@@ -194,14 +280,23 @@ function berechnen(){
         <td>${gesamt.toFixed(2)} €</td>
         <td>${gewinn.toFixed(2)} €</td>
         <td class="${ampel(marge)}">${marge.toFixed(2)} %</td>
+        <td>${breakEven.toFixed(2)} €</td>
       </tr>`;
   });
 
   ergebnis.innerHTML=`
     <p><strong>Abrechnungsgewicht:</strong> ${abrechnung.toFixed(2)} kg</p>
     <p><strong>DDP pro Stück (inkl. MwSt):</strong> ${ddpMwst.toFixed(2)} €</p>
+
     <table>
-      <tr><th>Set</th><th>Umsatz</th><th>Gesamtkosten</th><th>Gewinn</th><th>Marge</th></tr>
+      <tr>
+        <th>Set</th>
+        <th>Verkaufspreis</th>
+        <th>Gesamtkosten</th>
+        <th>Gewinn</th>
+        <th>Marge</th>
+        <th>Break-even</th>
+      </tr>
       ${rows}
     </table>`;
 }
