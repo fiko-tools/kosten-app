@@ -140,7 +140,27 @@
     padding: 6px;
     margin-bottom: 6px;
   }
+/* Produktbild im Druck stark verkleinern */
+  #preview {
+    max-height: 110px;
+    width: auto;
+    margin: 0 auto 4px auto;
+    display: block;
+  }
+  /* Set-Vergleich kompakt für Druck */
+  #setVergleich {
+    font-size: 9px;
+    line-height: 1.1;
+  }
 
+  #setVergleich br {
+    display: none;
+  }
+
+  #setVergleich span {
+    display: block;
+    margin-bottom: 2px;
+  }
   button,
   input[type="file"] {
     display: none;
@@ -274,6 +294,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
