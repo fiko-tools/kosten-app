@@ -68,7 +68,16 @@
   button:hover {
     background: #1e40af;
   }
-
+/* Produktbild – normale Ansicht */
+#preview {
+  max-width: 120px;
+  max-height: 160px;
+  width: auto;
+  height: auto;
+  display: block;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+}
   /* ===== DRUCK: ALLES AUF 1 DIN A4 ===== */
 @media print {
   @page {
@@ -110,10 +119,14 @@
   }
 /* Produktbild im Druck stark verkleinern */
   #preview {
-    max-height: 110px;
-    width: auto;
-    margin: 0 auto 4px auto;
-    display: block;
+  max-width: 80px;
+  max-height: 100px;
+  width: auto;
+  height: auto;
+  margin: 0 auto 4px auto;
+  display: block;
+  }
+}
   }
   /* Set-Vergleich kompakt für Druck */
   #setVergleich {
@@ -275,6 +288,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
