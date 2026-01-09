@@ -7,8 +7,8 @@
 
 <style>
 :root{
-  --bg:#f6f8fc; --card:#fff; --primary:#2563eb; --text:#0f172a;
-  --muted:#64748b; --border:#e5e7eb;
+  --bg:#f6f8fc; --card:#fff; --primary:#2563eb;
+  --text:#0f172a; --muted:#64748b; --border:#e5e7eb;
   --bad:#dc2626; --mid:#d97706; --good:#16a34a;
 }
 *{box-sizing:border-box}
@@ -25,9 +25,11 @@ main{max-width:1100px;margin:auto;padding:16px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
 label{font-size:12px;font-weight:600;color:var(--muted)}
 input{width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--border)}
+
 button{border:none;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--primary);color:#fff}
 button.secondary{background:#64748b}
 button.print{background:#16a34a}
+
 .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
 
 #preview{max-width:120px;max-height:150px;border-radius:10px;border:1px solid var(--border);margin-top:8px}
@@ -159,19 +161,19 @@ function berechnen(){
 
   const vol=(l1*b1*h1)/6000;
   const gewichtAb=Math.max(g,vol);
-  const ddp=(gewichtAb*preisKg*1.19);
-  ddp.value=ddp.toFixed(2);
+  const ddpW=gewichtAb*preisKg*1.19;
+  ddp.value=ddpW.toFixed(2);
 
   gesamtEK.value=(ek*menge).toFixed(2);
-  gesamtDDP.value=(ddp*menge).toFixed(2);
-  gesamtEinkauf.value=((ek+ddp)*menge).toFixed(2);
+  gesamtDDP.value=(ddpW*menge).toFixed(2);
+  gesamtEinkauf.value=((ek+ddpW)*menge).toFixed(2);
 
   const sets=[[1,preis1.value],[2,preis2.value],[3,preis3.value]];
   let rows="";
 
   sets.forEach(([anz,p])=>{
     const preis=+p||0; if(!preis) return;
-    const fix=(ek+ddp)*anz+amazFix+ppc+vers+verpack;
+    const fix=(ek+ddpW)*anz+amazFix+ppc+vers+verpack;
     const ges=fix+preis*amazP+preis*retour;
     const gew=preis-ges;
     const marge=(gew/preis)*100;
