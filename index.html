@@ -41,7 +41,7 @@ main{
   padding:16px;
 }
 
-/* ---------- KLAPP-SECTIONS ---------- */
+/* ---------- KLAPPBARE SECTIONS ---------- */
 .section{
   background:var(--card);
   border-radius:14px;
@@ -83,6 +83,7 @@ input{
   border:1px solid var(--border);
 }
 
+/* ---------- BUTTONS ---------- */
 button{
   border:none;
   border-radius:12px;
@@ -104,7 +105,7 @@ button.print{background:#16a34a}
   margin-bottom:12px;
 }
 
-/* Bild */
+/* ---------- BILD (nur Eingabe) ---------- */
 #preview{
   max-width:120px;
   max-height:150px;
@@ -113,7 +114,7 @@ button.print{background:#16a34a}
   margin-top:8px;
 }
 
-/* Tabelle */
+/* ---------- TABELLE ---------- */
 table{
   width:100%;
   border-collapse:collapse;
@@ -134,6 +135,8 @@ th{color:var(--muted)}
 .good{color:var(--good);font-weight:700}
 
 /* ---------- DRUCK ---------- */
+#printHeader{display:none}
+
 @media print{
   @page{size:A4;margin:10mm}
 
@@ -232,6 +235,7 @@ th{color:var(--muted)}
   </div>
   <div class="section-content">
 
+    <!-- NUR FÜR DRUCK -->
     <div id="printHeader">
       <img id="printImage">
       <strong id="printName"></strong>
