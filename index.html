@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Amazon Kostenkalkulation</title>
+<title>Amazon Kostenkalkulation – Setpreise manuell</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -27,7 +27,7 @@ section{
   box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
 h2{margin:0 0 10px;font-size:18px;border-bottom:1px solid #e5e7eb;padding-bottom:6px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
 label{font-size:13px;font-weight:600;}
 input{
   width:100%;
@@ -70,7 +70,7 @@ th{background:#f1f5f9;}
 
 <header>
 <h1>Amazon Kostenkalkulation</h1>
-<p>Kleinunternehmer · EK & DDP inkl. MwSt · Setvergleich</p>
+<p>Kleinunternehmer · manuelle Setpreise · korrekte Marge</p>
 </header>
 
 <main>
@@ -81,10 +81,6 @@ th{background:#f1f5f9;}
   <div>
     <label>Produktname</label>
     <input id="produktname">
-  </div>
-  <div>
-    <label>Verkaufspreis pro Stück (€)</label>
-    <input id="verkauf">
   </div>
 </div>
 
@@ -102,7 +98,7 @@ th{background:#f1f5f9;}
   <div><label>Breite (cm)</label><input id="b"></div>
   <div><label>Höhe (cm)</label><input id="h"></div>
   <div><label>Preis pro kg (€)</label><input id="preisKg" value="6.5"></div>
-  <div><label>DDP automatisch (€)</label><input id="ddp" readonly></div>
+  <div><label>DDP pro Stück</label><input id="ddp" readonly></div>
 </div>
 </section>
 
@@ -111,10 +107,19 @@ th{background:#f1f5f9;}
 <div class="grid">
   <div><label>Amazon Provision (%)</label><input id="amazP" value="15"></div>
   <div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
-  <div><label>PPC (€)</label><input id="ppc" value="0"></div>
-  <div><label>Versand (€)</label><input id="versand" value="0"></div>
-  <div><label>Verpackung (€)</label><input id="verpackung" value="0"></div>
+  <div><label>PPC pro Set (€)</label><input id="ppc" value="0"></div>
+  <div><label>Versand pro Set (€)</label><input id="versand" value="0"></div>
+  <div><label>Verpackung pro Set (€)</label><input id="verpackung" value="0"></div>
   <div><label>Retourquote (%)</label><input id="retour" value="5"></div>
+</div>
+</section>
+
+<section>
+<h2>Verkaufspreise (manuell)</h2>
+<div class="grid">
+  <div><label>1er Set Preis (€)</label><input id="preis1"></div>
+  <div><label>2er Set Preis (€)</label><input id="preis2"></div>
+  <div><label>3er Set Preis (€)</label><input id="preis3"></div>
 </div>
 </section>
 
@@ -151,7 +156,6 @@ function berechnen(){
   const gewichtW=+gewicht.value||0;
   const l1=+l.value||0,b1=+b.value||0,h1=+h.value||0;
   const preisKgW=+preisKg.value||0;
-  const verk=+verkauf.value||0;
 
   const amazPrc=+amazP.value/100;
   const amazFixW=+amazFix.value||0;
@@ -165,10 +169,18 @@ function berechnen(){
   const ddpMwst=abrechnung*preisKgW*1.19;
   ddp.value=ddpMwst.toFixed(2);
 
+  const sets=[
+    {anz:1,preis:+preis1.value||0},
+    {anz:2,preis:+preis2.value||0},
+    {anz:3,preis:+preis3.value||0}
+  ];
+
   let rows="";
-  [1,2,3].forEach(set=>{
-    const umsatz=verk*set;
-    const waren=(ekW+ddpMwst)*set;
+
+  sets.forEach(s=>{
+    if(!s.preis) return;
+    const umsatz=s.preis;
+    const waren=(ekW+ddpMwst)*s.anz;
     const amazon=umsatz*amazPrc+amazFixW;
     const retourK=umsatz*retourP;
     const gesamt=waren+amazon+ppcW+versW+verpackW+retourK;
@@ -177,7 +189,7 @@ function berechnen(){
 
     rows+=`
       <tr>
-        <td>${set}er Set</td>
+        <td>${s.anz}er Set</td>
         <td>${umsatz.toFixed(2)} €</td>
         <td>${gesamt.toFixed(2)} €</td>
         <td>${gewinn.toFixed(2)} €</td>
@@ -196,10 +208,11 @@ function berechnen(){
 
 function speichern(){
   const d={
-    produktname:produktname.value,verkauf:verkauf.value,ek:ek.value,
-    gewicht:gewicht.value,l:l.value,b:b.value,h:h.value,
-    preisKg:preisKg.value,amazP:amazP.value,amazFix:amazFix.value,
-    ppc:ppc.value,versand:versand.value,verpackung:verpackung.value,retour:retour.value
+    produktname:produktname.value,ek:ek.value,gewicht:gewicht.value,
+    l:l.value,b:b.value,h:h.value,preisKg:preisKg.value,
+    amazP:amazP.value,amazFix:amazFix.value,ppc:ppc.value,
+    versand:versand.value,verpackung:verpackung.value,retour:retour.value,
+    preis1:preis1.value,preis2:preis2.value,preis3:preis3.value
   };
   localStorage.setItem("daten",JSON.stringify(d));
   alert("Produkt gespeichert");
