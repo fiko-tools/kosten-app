@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Amazon Kostenkalkulation – Set & Break-even</title>
+<title>Amazon Kostenkalkulation – Sets, Zielmarge & Break-even</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -87,7 +87,6 @@ button{
 button.secondary{background:#64748b}
 button.print{background:#16a34a}
 button.danger{background:#dc2626}
-
 .actions{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
@@ -169,7 +168,7 @@ th{color:var(--muted)}
 
 <header>
   <h1>Amazon Kostenkalkulation</h1>
-  <p>Kleinunternehmer · Sets · Break-even</p>
+  <p>Kleinunternehmer · Sets · Zielmarge</p>
 </header>
 
 <main>
@@ -222,6 +221,7 @@ th{color:var(--muted)}
     <div><label>Versand (€)</label><input id="versand" value="0"></div>
     <div><label>Verpackung (€)</label><input id="verpackung" value="0"></div>
     <div><label>Retourquote (%)</label><input id="retour" value="5"></div>
+    <div><label>Zielmarge (%)</label><input id="zielmarge" value="25"></div>
   </div>
 </div>
 
@@ -234,13 +234,16 @@ th{color:var(--muted)}
     <div><label>1er Set (€)</label><input id="preis1"></div>
     <div><label>2er Set (€)</label><input id="preis2"></div>
     <div><label>3er Set (€)</label><input id="preis3"></div>
+    <div><label>4er Set (€)</label><input id="preis4"></div>
+    <div><label>5er Set (€)</label><input id="preis5"></div>
+    <div><label>10er Set (€)</label><input id="preis10"></div>
   </div>
 </div>
 
 <!-- ERGEBNIS -->
 <div class="section" id="printSection">
   <div class="section-header">
-    <h2>Ergebnis & Setvergleich</h2>
+    <h2>Ergebnis & Empfehlung</h2>
   </div>
   <div class="section-content">
     <div id="printHeader">
@@ -284,7 +287,7 @@ function ampel(m){
 }
 
 function berechnen(){
-  printName.textContent = produktname.value;
+  printName.textContent=produktname.value;
 
   const ekW=+ek.value||0;
   const gewichtW=+gewicht.value||0;
@@ -297,56 +300,63 @@ function berechnen(){
   const versW=+versand.value||0;
   const verpackW=+verpackung.value||0;
   const retourP=+retour.value/100;
+  const zielP=+zielmarge.value/100;
 
   const volGew=(l1*b1*h1)/6000;
   const abrechnung=Math.max(gewichtW,volGew);
   const ddpMwst=abrechnung*preisKgW*1.19;
   ddp.value=ddpMwst.toFixed(2);
 
-  /* 🔧 HIER IST DER EINZIGE FIX */
-  const fixKosten = amazFixW + ppcW + versW + verpackW;
+  const fixKosten=amazFixW+ppcW+versW+verpackW;
 
   const sets=[
     {anz:1,preis:+preis1.value||0},
     {anz:2,preis:+preis2.value||0},
-    {anz:3,preis:+preis3.value||0}
+    {anz:3,preis:+preis3.value||0},
+    {anz:4,preis:+preis4.value||0},
+    {anz:5,preis:+preis5.value||0},
+    {anz:10,preis:+preis10.value||0}
   ];
 
   let rows="", hints="";
 
   sets.forEach(s=>{
-    if(!s.preis) return;
-
-    const umsatz=s.preis;
     const waren=(ekW+ddpMwst)*s.anz;
-    const gesamt=waren + fixKosten + (umsatz*amazPrc) + (umsatz*retourP);
-    const gewinn=umsatz-gesamt;
-    const marge=umsatz?(gewinn/umsatz)*100:0;
+    const empVK=(waren+fixKosten)/(1-amazPrc-retourP-zielP);
+
+    if(!s.preis && !empVK) return;
+
+    const umsatz=s.preis||0;
+    const gesamt=umsatz? waren+fixKosten+(umsatz*amazPrc)+(umsatz*retourP):0;
+    const gewinn=umsatz? umsatz-gesamt:0;
+    const marge=umsatz? (gewinn/umsatz)*100:0;
     const breakEven=(waren+fixKosten)/(1-amazPrc-retourP);
-    const ok=umsatz>=breakEven;
 
     rows+=`
       <tr>
         <td>${s.anz}er</td>
-        <td>${umsatz.toFixed(2)} €</td>
-        <td>${gesamt.toFixed(2)} €</td>
-        <td>${gewinn.toFixed(2)} €</td>
-        <td class="${ampel(marge)}">${marge.toFixed(2)} %</td>
+        <td>${umsatz?umsatz.toFixed(2)+" €":"–"}</td>
+        <td>${empVK.toFixed(2)} €</td>
+        <td>${umsatz?gewinn.toFixed(2)+" €":"–"}</td>
+        <td class="${ampel(marge)}">${umsatz?marge.toFixed(2)+" %":"–"}</td>
         <td>${breakEven.toFixed(2)} €</td>
       </tr>`;
 
     hints+=`
-      <div class="break-box ${ok?"good":"bad"}">
-        ${s.anz}er Set: Break-even bei <strong>${breakEven.toFixed(2)} €</strong>
-        – ${ok?"profitabel":"Verlust unter diesem Preis"}
+      <div class="break-box ${umsatz>=breakEven?"good":"bad"}">
+        ${s.anz}er Set – Break-even <strong>${breakEven.toFixed(2)} €</strong>
       </div>`;
   });
 
   ergebnis.innerHTML=`
     <table>
       <tr>
-        <th>Set</th><th>Preis</th><th>Kosten</th>
-        <th>Gewinn</th><th>Marge</th><th>Break-even</th>
+        <th>Set</th>
+        <th>Aktueller VK</th>
+        <th>Empfohlener VK</th>
+        <th>Gewinn</th>
+        <th>Marge</th>
+        <th>Break-even</th>
       </tr>
       ${rows}
     </table>
