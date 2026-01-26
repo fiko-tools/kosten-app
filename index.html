@@ -7,31 +7,53 @@
 
 <style>
 :root{
-  --bg:#f6f8fc; --card:#fff; --primary:#2563eb;
-  --bad:#dc2626; --mid:#d97706; --good:#16a34a;
-  --muted:#64748b; --border:#e5e7eb;
+ --bg:#f6f8fc;--card:#fff;--primary:#2563eb;--primary-dark:#1e40af;
+ --text:#0f172a;--muted:#64748b;--border:#e5e7eb;
+ --bad:#dc2626;--mid:#d97706;--good:#16a34a;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui;background:var(--bg)}
-header{background:#1e40af;color:#fff;padding:20px;text-align:center}
+body{margin:0;font-family:system-ui;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:22px;text-align:center}
 main{max-width:1100px;margin:auto;padding:16px}
-.section{background:#fff;border-radius:14px;margin-bottom:16px;
-  box-shadow:0 10px 25px rgba(0,0,0,.06)}
-.section-header{display:flex;justify-content:space-between;
-  padding:14px 16px;cursor:pointer}
+.section{background:var(--card);border-radius:14px;margin-bottom:16px;
+ box-shadow:0 10px 25px rgba(0,0,0,.06);overflow:hidden}
+.section-header{display:flex;justify-content:space-between;align-items:center;
+ padding:14px 16px;cursor:pointer}
+.section-header h2{margin:0;font-size:18px}
+.toggle{font-size:18px;color:var(--muted)}
 .section-content{padding:16px;border-top:1px solid var(--border)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-label{font-size:12px;color:var(--muted);font-weight:600}
-input{width:100%;padding:8px;border-radius:10px;border:1px solid var(--border)}
-button{border:none;border-radius:12px;padding:10px;font-weight:600;
-  background:#2563eb;color:#fff;cursor:pointer}
-table{width:100%;border-collapse:collapse;margin-top:12px}
+label{font-size:12px;font-weight:600;color:var(--muted)}
+input{width:100%;padding:8px 10px;font-size:14px;border-radius:10px;border:1px solid var(--border)}
+button{border:none;border-radius:12px;padding:10px;font-size:14px;font-weight:600;
+ cursor:pointer;background:var(--primary);color:#fff}
+button.secondary{background:#64748b}
+button.print{background:#16a34a}
+button.danger{background:#dc2626}
+.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+#preview{max-width:120px;max-height:150px;border-radius:10px;border:1px solid var(--border);margin-top:8px}
+.product-list{font-size:13px}
+.product-item{display:flex;justify-content:space-between;align-items:center;
+ padding:6px 0;border-bottom:1px solid var(--border)}
+.product-item span{font-weight:600}
+.product-item button{padding:6px 8px;font-size:12px}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
 th,td{padding:8px;border-bottom:1px solid var(--border);text-align:center}
+th{color:var(--muted)}
 .bad{color:var(--bad);font-weight:700}
 .mid{color:var(--mid);font-weight:700}
 .good{color:var(--good);font-weight:700}
-.break-box{margin-top:6px;padding:6px;border:1px dashed var(--border);
-  border-radius:8px;font-size:13px}
+.break-box{margin-top:10px;padding:8px;border-radius:8px;font-size:13px;
+ background:#f8fafc;border:1px dashed var(--border)}
+#printHeader{display:none}
+@media print{
+ @page{size:A4;margin:10mm}
+ body{background:#fff;font-size:12px}
+ .section:not(#printSection){display:none}
+ button,input[type=file]{display:none!important}
+ #printHeader{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+ #printHeader img{max-width:60px;max-height:80px;border:1px solid #ccc}
+}
 </style>
 </head>
 
@@ -39,57 +61,91 @@ th,td{padding:8px;border-bottom:1px solid var(--border);text-align:center}
 
 <header>
 <h1>Amazon Kostenkalkulation</h1>
-<p>Kleinunternehmer · DDP korrekt · Sets</p>
+<p>Kleinunternehmer · DDP korrekt · Sets · Zielmarge</p>
 </header>
 
 <main>
 
+<!-- PRODUKT -->
 <div class="section">
 <div class="section-header" onclick="toggle(this)">
-<h2>Einkauf & DDP</h2><span>▼</span>
+<h2>Produkt</h2><span class="toggle">▼</span>
 </div>
 <div class="section-content grid">
-  <div><label>EK Warenwert (€)</label><input id="ek" value="4"></div>
-  <div><label>Gewicht (kg)</label><input id="gewicht" value="0.5"></div>
-  <div><label>L (cm)</label><input id="l" value="32"></div>
-  <div><label>B (cm)</label><input id="b" value="23"></div>
-  <div><label>H (cm)</label><input id="h" value="4"></div>
-  <div><label>DDP €/kg (inkl. MwSt)</label><input id="preisKg" value="6.5"></div>
-  <div><label>DDP gesamt (€)</label><input id="ddp" readonly></div>
+<div>
+<label>Produktname</label>
+<input id="produktname">
+<label>Produktbild</label>
+<input type="file" accept="image/*" onchange="bildLaden(event)">
+<img id="preview">
+</div>
+<div>
+<strong>Letzte Produkte</strong>
+<div class="product-list" id="productList"></div>
+</div>
 </div>
 </div>
 
+<!-- EINKAUF -->
 <div class="section">
 <div class="section-header" onclick="toggle(this)">
-<h2>Amazon & Kosten</h2><span>▶</span>
+<h2>Einkauf & DDP</h2><span class="toggle">▼</span>
 </div>
-<div class="section-content grid" style="display:none">
-  <div><label>Amazon %</label><input id="amazP" value="15"></div>
-  <div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
-  <div><label>Versand (€)</label><input id="versand" value="5.5"></div>
-  <div><label>Verpackung (€)</label><input id="verpackung" value="1"></div>
-  <div><label>Retourquote (%)</label><input id="retour" value="5"></div>
-  <div><label>Zielmarge (%)</label><input id="ziel" value="25"></div>
+<div class="section-content grid">
+<div><label>EK Warenwert (€)</label><input id="ek"></div>
+<div><label>Gewicht (kg)</label><input id="gewicht"></div>
+<div><label>Länge (cm)</label><input id="l"></div>
+<div><label>Breite (cm)</label><input id="b"></div>
+<div><label>Höhe (cm)</label><input id="h"></div>
+<div><label>DDP €/kg (inkl. MwSt)</label><input id="preisKg" value="6.5"></div>
+<div><label>DDP gesamt (€)</label><input id="ddp" readonly></div>
 </div>
 </div>
 
+<!-- AMAZON -->
 <div class="section">
 <div class="section-header" onclick="toggle(this)">
-<h2>Verkaufspreise</h2><span>▶</span>
+<h2>Amazon, Versand & Retouren</h2><span class="toggle">▶</span>
 </div>
 <div class="section-content grid" style="display:none">
-  <div><label>1er (€)</label><input id="p1" value="29.99"></div>
-  <div><label>2er (€)</label><input id="p2" value="44.99"></div>
+<div><label>Amazon %</label><input id="amazP" value="15"></div>
+<div><label>Amazon Fix (€)</label><input id="amazFix" value="0.99"></div>
+<div><label>PPC (€)</label><input id="ppc" value="0"></div>
+<div><label>Versand (€)</label><input id="versand" value="0"></div>
+<div><label>Verpackung (€)</label><input id="verpackung" value="0"></div>
+<div><label>Retourquote (%)</label><input id="retour" value="5"></div>
+<div><label>Zielmarge (%)</label><input id="zielmarge" value="25"></div>
 </div>
 </div>
 
+<!-- PREISE -->
 <div class="section">
-<div class="section-header">
-<h2>Ergebnis</h2>
+<div class="section-header" onclick="toggle(this)">
+<h2>Verkaufspreise</h2><span class="toggle">▶</span>
 </div>
+<div class="section-content grid" style="display:none">
+<input id="preis1" placeholder="1er Set">
+<input id="preis2" placeholder="2er Set">
+<input id="preis3" placeholder="3er Set">
+<input id="preis4" placeholder="4er Set">
+<input id="preis5" placeholder="5er Set">
+<input id="preis10" placeholder="10er Set">
+</div>
+</div>
+
+<!-- ERGEBNIS -->
+<div class="section" id="printSection">
+<div class="section-header"><h2>Ergebnis & Empfehlung</h2></div>
 <div class="section-content">
-<button onclick="calc()">Berechnen</button>
-<div id="out"></div>
+<div id="printHeader">
+<img id="printImage"><strong id="printName"></strong>
+</div>
+<div class="actions">
+<button onclick="berechnen()">Berechnen</button>
+<button class="secondary" onclick="speichern()">Speichern</button>
+<button class="print" onclick="window.print()">Drucken / PDF</button>
+</div>
+<div id="ergebnis"></div>
 </div>
 </div>
 
@@ -97,68 +153,151 @@ th,td{padding:8px;border-bottom:1px solid var(--border);text-align:center}
 
 <script>
 function toggle(h){
-  const c=h.nextElementSibling;
-  c.style.display=c.style.display==="none"?"block":"none";
+ const c=h.nextElementSibling;
+ const i=h.querySelector(".toggle");
+ const open=c.style.display!=="none";
+ c.style.display=open?"none":"block";
+ i.textContent=open?"▶":"▼";
+}
+
+function bildLaden(e){
+ const r=new FileReader();
+ r.onload=()=>{
+   preview.src=r.result;
+   printImage.src=r.result;
+   localStorage.setItem("bild_temp",r.result);
+ };
+ r.readAsDataURL(e.target.files[0]);
 }
 
 function ampel(m){
-  if(m<20)return"bad";
-  if(m<25)return"mid";
-  return"good";
+ if(m<20)return"bad";
+ if(m<25)return"mid";
+ return"good";
 }
 
-function calc(){
-  const ek=+ekInput();
-  const g=+gewicht.value;
-  const vol=(+l.value*+b.value*+h.value)/6000;
-  const abrechnung=Math.max(g,vol);
+function berechnen(){
+ printName.textContent=produktname.value;
 
-  // DDP ist bereits inkl. MwSt
-  const ddpW=abrechnung*(+preisKg.value);
-  ddp.value=ddpW.toFixed(2);
+ const ekW=+ek.value||0;
+ const gewichtW=+gewicht.value||0;
+ const l1=+l.value||0,b1=+b.value||0,h1=+h.value||0;
+ const preisKgW=+preisKg.value||0;
 
-  // Amazon Gebühr KU (15 % + 19 % MwSt)
-  const amaz=(+amazP.value/100)*1.19;
-  const amazFixW=+amazFix.value;
-  const vers=+versand.value;
-  const verp=+verpackung.value;
-  const ret=+retour.value/100;
-  const ziel=+ziel.value/100;
+ const amazPrc=(+amazP.value/100)*1.19; // FIX: KU Amazon inkl. MwSt
+ const amazFixW=+amazFix.value||0;
+ const ppcW=+ppc.value||0;
+ const versW=+versand.value||0;
+ const verpackW=+verpackung.value||0;
+ const retourP=+retour.value/100;
+ const zielP=+zielmarge.value/100;
 
-  const fix=amazFixW+vers+verp;
+ const volGew=(l1*b1*h1)/6000;
+ const abrechnung=Math.max(gewichtW,volGew);
 
-  const sets=[
-    {n:1,p:+p1.value},
-    {n:2,p:+p2.value}
-  ];
+ const ddpW=abrechnung*preisKgW; // FIX: DDP bereits inkl. MwSt
+ ddp.value=ddpW.toFixed(2);
 
-  let rows="";
-  sets.forEach(s=>{
-    const kosten=(ek+ddpW)*s.n+fix;
-    const geb=s.p*amaz;
-    const ges=kosten+geb+(s.p*ret);
-    const gew=s.p-ges;
-    const marge=(gew/s.p)*100;
-    const be=kosten/(1-amaz-ret);
+ const fixKosten=amazFixW+ppcW+versW+verpackW;
 
-    rows+=`
-    <tr>
-      <td>${s.n}er</td>
-      <td>${s.p.toFixed(2)} €</td>
-      <td>${gew.toFixed(2)} €</td>
-      <td class="${ampel(marge)}">${marge.toFixed(1)} %</td>
-      <td>${be.toFixed(2)} €</td>
-    </tr>`;
-  });
+ const sets=[
+ {anz:1,preis:+preis1.value||0},
+ {anz:2,preis:+preis2.value||0},
+ {anz:3,preis:+preis3.value||0},
+ {anz:4,preis:+preis4.value||0},
+ {anz:5,preis:+preis5.value||0},
+ {anz:10,preis:+preis10.value||0}
+ ];
 
-  out.innerHTML=`
-  <table>
-    <tr><th>Set</th><th>VK</th><th>Gewinn</th><th>Marge</th><th>Break-even</th></tr>
-    ${rows}
-  </table>`;
+ let rows="",hints="";
+ sets.forEach(s=>{
+   const waren=(ekW+ddpW)*s.anz;
+   const empVK=(waren+fixKosten)/(1-amazPrc-retourP-zielP);
+   if(!s.preis && !empVK)return;
+   const umsatz=s.preis||0;
+   const gesamt=umsatz?
+     waren+fixKosten+(umsatz*amazPrc)+(umsatz*retourP):0;
+   const gewinn=umsatz?umsatz-gesamt:0;
+   const marge=umsatz?(gewinn/umsatz)*100:0;
+   const breakEven=(waren+fixKosten)/(1-amazPrc-retourP);
+
+   rows+=`
+   <tr>
+     <td>${s.anz}er</td>
+     <td>${umsatz?umsatz.toFixed(2)+" €":"–"}</td>
+     <td>${empVK.toFixed(2)} €</td>
+     <td>${umsatz?gewinn.toFixed(2)+" €":"–"}</td>
+     <td class="${ampel(marge)}">${umsatz?marge.toFixed(2)+" %":"–"}</td>
+     <td>${breakEven.toFixed(2)} €</td>
+   </tr>`;
+
+   hints+=`
+   <div class="break-box ${umsatz>=breakEven?"good":"bad"}">
+   ${s.anz}er Set – Break-even <strong>${breakEven.toFixed(2)} €</strong>
+   </div>`;
+ });
+
+ ergebnis.innerHTML=`
+ <table>
+ <tr><th>Set</th><th>VK</th><th>Empf. VK</th><th>Gewinn</th><th>Marge</th><th>Break-even</th></tr>
+ ${rows}
+ </table>${hints}`;
 }
 
-function ekInput(){return +document.getElementById("ek").value||0}
+function speichern(){
+ const prod={
+   id:Date.now(),
+   name:produktname.value||"Ohne Namen",
+   bild:localStorage.getItem("bild_temp"),
+   daten:{}
+ };
+ document.querySelectorAll("input").forEach(i=>prod.daten[i.id]=i.value);
+ let list=JSON.parse(localStorage.getItem("produkte")||"[]");
+ list.unshift(prod);list=list.slice(0,10);
+ localStorage.setItem("produkte",JSON.stringify(list));
+ ladeProduktListe();
+ alert("Produkt gespeichert");
+}
+
+function ladeProduktListe(){
+ const list=JSON.parse(localStorage.getItem("produkte")||"[]");
+ productList.innerHTML="";
+ list.forEach(p=>{
+   const div=document.createElement("div");
+   div.className="product-item";
+   div.innerHTML=`
+   <span>${p.name}</span>
+   <div>
+     <button onclick="laden(${p.id})">Laden</button>
+     <button class="danger" onclick="loeschen(${p.id})">✕</button>
+   </div>`;
+   productList.appendChild(div);
+ });
+}
+
+function laden(id){
+ const list=JSON.parse(localStorage.getItem("produkte")||"[]");
+ const p=list.find(x=>x.id===id);
+ if(!p)return;
+ Object.keys(p.daten).forEach(k=>{
+   if(document.getElementById(k))
+     document.getElementById(k).value=p.daten[k];
+ });
+ if(p.bild){
+   preview.src=p.bild;
+   printImage.src=p.bild;
+   localStorage.setItem("bild_temp",p.bild);
+ }
+}
+
+function loeschen(id){
+ let list=JSON.parse(localStorage.getItem("produkte")||"[]");
+ list=list.filter(p=>p.id!==id);
+ localStorage.setItem("produkte",JSON.stringify(list));
+ ladeProduktListe();
+}
+
+window.onload=()=>ladeProduktListe();
 </script>
 
 </body>
